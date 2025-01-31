@@ -1,3 +1,4 @@
+#! env/bin/python3
 from app import create_app
 from app.extensions import db
 

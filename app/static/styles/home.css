@@ -1,0 +1,56 @@
+html {
+    height: 100%;
+}
+
+h1 {
+    text-align: center;
+}
+
+body {
+    background-image: url("/static/pictures/joli_paysage.jpg");
+    background-size:cover ;
+}
+
+#characters {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;height: max-content;
+    bottom: 0%;
+}
+
+.picture {
+    width: 15vi;
+    
+}
+
+#p1 {
+    margin: 0 0 0 5vh;
+}
+
+#p2 {
+    margin: 0 5vh 0 0;
+    transform: rotateY(180deg);
+}
+
+.bubble {
+    position: absolute;
+    bottom: 50px; /* distance from the bottom of the page */
+    left: 50%;
+    transform: translateX(-50%);
+    border-style:solid;
+    border-color: black;
+    background-color: white;
+    height: 10vi; 
+    padding: 1vi 3vi;
+    /*height: 20vi;*/
+}
+
+.name {
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.text {
+    font-size: 20px;
+    width:80vi;
+}
