@@ -12,6 +12,9 @@ class StoryNode(db.Model):
     id: Mapped[int] = mapped_column(primary_key=True)
     node_type: Mapped[str] = mapped_column(default="DIALOG")
     content: Mapped[str] = mapped_column()
+    speaker: Mapped[str] = mapped_column()
+    left_img: Mapped[str] = mapped_column()
+    right_img: Mapped[str] = mapped_column()
     # one to many relation ship with Story (a story has many nodes)
     story_id: Mapped[int] = mapped_column(ForeignKey("stories.id"))
     story: Mapped["Story"] = relationship(back_populates="nodes")
@@ -24,5 +27,8 @@ class StoryNode(db.Model):
         return {
             "id": self.id,
             "type": self.node_type,
-            "content": self.content
+            "content": self.content,
+            "speaker": self.speaker,
+            "left_img": self.left_img,
+            "right_img": self.right_img
         }
