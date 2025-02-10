@@ -19,3 +19,10 @@ class StoryNode(db.Model):
 
     def __repr__(self):
         return f"<StoryNode {self.id} ({self.node_type})>"
+
+    def serialize(self) -> object:
+        return {
+            "id": self.id,
+            "type": self.node_type,
+            "content": self.content
+        }

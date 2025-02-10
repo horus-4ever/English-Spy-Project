@@ -17,3 +17,10 @@ class Story(db.Model):
 
     def __repr__(self):
         return f"<Story {self.title}>"
+
+    def serialize(self) -> object:
+        return {
+            "id": self.id,
+            "title": self.title,
+            "description": self.description
+        }

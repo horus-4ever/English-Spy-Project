@@ -1,7 +1,7 @@
 from flask import Flask
 from app.routes import home_routes
 from app.api import api_bp
-from app.extensions import db
+from app.extensions import db, bcrypt
 
 def create_app():
     app = Flask(__name__)
@@ -11,6 +11,8 @@ def create_app():
     # Register blueprints
     app.register_blueprint(home_routes.bp)
     app.register_blueprint(api_bp, url_prefix="/api")
+
+    bcrypt.init_app(app)
 
     # create and populate the database
     from app.models import Story, StoryEdge, StoryNode, User

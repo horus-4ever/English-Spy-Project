@@ -11,7 +11,7 @@ class StoryEdge(db.Model):
 
 
     from_node_id: Mapped[int] = mapped_column(db.ForeignKey("story_nodes.id"), primary_key=True)
-    to_node_id: Mapped[int] = mapped_column(db.ForeignKey("story_nodes.id"), primary_key=True)
+    to_node_id: Mapped[int] = mapped_column(db.ForeignKey("story_nodes.id"))
     condition: Mapped[str] = mapped_column(default="SUCCESS")
 
     # Relationship for easy access
@@ -20,3 +20,10 @@ class StoryEdge(db.Model):
 
     def __repr__(self):
         return f"<StoryEdge {self.from_node_id} -> {self.to_node_id}>"
+
+    def serialize(self) -> object:
+        return {
+            "from": self.from_node_id,
+            "to": self.to_node_id,
+            "condition": self.condition
+        }
