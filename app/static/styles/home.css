@@ -54,3 +54,17 @@ body {
 #text {
     font-size: 20px;
 }
+
+#next {
+    position: absolute;
+    bottom: 0; /* distance from the bottom of box */
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    height: 20%;
+    border-radius: 0%;
+}
+
+#next:hover{
+    background-color: green;
+}
