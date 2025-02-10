@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Simple Flask App</title>
     <link rel="stylesheet" href="../static/styles/home.css" />
+    <script src="../static/scripts/myScript.js"></script>
 </head>
 <body>
     <header>
@@ -15,11 +16,11 @@
             <img id="p1" class="picture" src="../static/pictures/p1.png" alt="Picture of the first character">
             <img id="p2" class="picture" src="../static/pictures/p2.png" alt="Picture of the second character">
         </div>
-        <div class="bubble"> 
-            <div class="name">
+        <div class="bubble" onclick="document.getElementById('text').innerHTML=myFunction()"> 
+            <div id="name">
                 Yoya
             </div>
-            <div class="text">
+            <div id="text">
                 Lorem ipsum dolor sit amet consectetur adipisicing elit. Veniam aliquam excepturi nemo optio tempore blanditiis, perspiciatis ut, voluptas voluptate sint dignissimos quidem ducimus eveniet quis iste nostrum dolor maiores beatae.
             </div>
         </div>

@@ -46,11 +46,11 @@ body {
     width: 80%;
 }
 
-.name {
+#name {
     font-size: 20px;
     font-weight: bold;
 }
 
-.text {
+#text {
     font-size: 20px;
 }
