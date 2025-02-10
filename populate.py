@@ -4,7 +4,7 @@ from app.models import *
 def populate():
     story = Story(title="Test Story", description="This is a test story")
     # start node
-    start_node = StoryNode(node_type="START", content="", story_id=1)
+    start_node = StoryNode(node_type="START", content="this is the story of a man named Stanley.", story_id=1)
     end_node = StoryNode(node_type="END", content="", story_id=1)
     some_node = StoryNode(node_type="DIALOG", content="Hello World!", story_id=1)
 
