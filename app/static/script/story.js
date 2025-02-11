@@ -11,36 +11,37 @@ async function nextSentence(){
     try {
         content.innerHTML = json.data.content;
     } catch {
-        throw new Error("JSON error in field json.data.content\n Got " + json.data.content);
+        console.error("JSON error in field json.data.content\n Got " + json.data.content);
     }
     
     const left_img = document.querySelector("#p1");
     try {
-        left_img.innerHTML = json.data.left_img;
+        left_img.src = json.data.left_img; 
     } catch {
-        throw new Error("JSON error in field json.data.left_img\n Got " + json.data.left_img);
+        console.error("JSON error in field json.data.left_img\n Got " + json.data.left_img);
     }
 
 
     const right_img = document.querySelector("#p2");
     try {
-        right_img.innerHTML = json.data.right_img;
+        right_img.src = json.data.right_img;
     } catch {
-        throw new Error("JSON error in field json.data.right_img\n Got " + json.data.right_img);
+        console.error("JSON error in field json.data.right_img\n Got " + json.data.right_img);
     }
 
     const speaker = document.querySelector(".speaker");
     try {
         speaker.innerHTML = json.data.speaker;
     } catch {
-        throw new Error("JSON error in field json.data.speaker\n Got " + json.data.speaker);
+        console.error("JSON error in field json.data.speaker\n Got " + json.data.speaker);
     }
-    const background = document.getElementsByClassName("body").background-image;
     try {
-        background = url(json.data.background);
+        document.body.style.backgroundImage = url(json.data.background);
     } catch {
-        throw new Error("JSON error in field json.data.background\n Got " + json.data.background);
+        console.error("JSON error in field json.data.background\n Got " + json.data.background);
     }
-    number = json.next[0].to;
-    console.log(number);
+    if (json.data.type != "END"){
+        number = json.next[0].to;
+        console.log(number);
+    }
 }

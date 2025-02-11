@@ -8,7 +8,7 @@ h1 {
 
 body {
     background-image: url("/static/pictures/joli_paysage.jpg");
-    background-size:100% ;
+    background-size:cover;
 }
 
 #characters {
@@ -23,13 +23,12 @@ body {
 }
 
 .picture {
-    width: 30%;
     height: max-content;
 
     
 }
 
-#p2 {
+#picture2 {
     transform: rotateY(180deg);
 }
 
