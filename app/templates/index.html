@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Simple Flask App</title>
     <link rel="stylesheet" href="../static/styles/home.css" />
-    <script src="../static/script/myScript.js"></script>
+    <script src="../static/script/story.js"></script>
 </head>
 <body>
     <header>
@@ -17,16 +17,16 @@
             <img id="p2" class="picture" src="../static/pictures/p2.png" alt="Picture of the second character">
         </div>
         <div class="bubble"> 
-            <div id="speaker">
+            <div class="speaker">
                 Yoya
             </div>
-            <div id="text">
+            <div class="text">
                 <script>
                     let number = 1;
-                    myFunction();
+                    nextSentence();
                 </script>    
             </div>
-            <button type="button" id="next" onclick="myFunction()"> next </button> 
+            <button type="button" class="next" onclick="nextSentence()"> next </button> 
         </div>
     </main>
 </body>

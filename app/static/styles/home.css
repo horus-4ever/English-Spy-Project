@@ -46,16 +46,20 @@ body {
     width: 80%;
 }
 
-#speaker {
+.speaker {
     font-size: 20px;
     font-weight: bold;
 }
 
-#text {
+.text {
     font-size: 20px;
+    position:relative;
+    margin: 10px 0;
+    height: 12vh;
+    width:100%;
 }
 
-#next {
+.next {
     position: absolute;
     bottom: 0; /* distance from the bottom of box */
     left: 50%;
@@ -65,6 +69,6 @@ body {
     border-radius: 0%;
 }
 
-#next:hover{
+.next:hover{
     background-color: green;
 }

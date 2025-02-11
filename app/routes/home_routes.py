@@ -5,3 +5,7 @@ bp = Blueprint('home', __name__)
 @bp.route("/")
 def home():
     return render_template("index.html")
+
+@bp.route("/admin")
+def admin():
+    return render_template("admin.html")

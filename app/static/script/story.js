@@ -1,4 +1,4 @@
-async function myFunction(){
+async function nextSentence(){
     const url = "http://127.0.0.1:5000/api/stories/nodes/" + String(number);
     console.log(url);
     const response = await fetch(url);
@@ -7,7 +7,7 @@ async function myFunction(){
     }
     const json = await response.json();
     
-    const content = document.querySelector("#text");
+    const content = document.querySelector(".text");
     try {
         content.innerHTML = json.data.content;
     } catch {
@@ -29,7 +29,7 @@ async function myFunction(){
         throw new Error("JSON error in field json.data.right_img\n Got " + json.data.right_img);
     }
 
-    const speaker = document.querySelector("#speaker");
+    const speaker = document.querySelector(".speaker");
     try {
         speaker.innerHTML = json.data.speaker;
     } catch {
