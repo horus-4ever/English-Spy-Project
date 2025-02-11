@@ -1,27 +1,26 @@
 function changeP1(){
-    document.getElementById('fileInput').addEventListener('change', function(event) {
-        const file = event.target.files[0];
+    document.getElementById('fileInputLeft').click();
+    document.getElementById('fileInputLeft').addEventListener('change', function(event) {
+        const file = event.target.files[0];  // Get the first selected file
         if (file) {
-            // Create a reader to read the file
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                // Show file info and content (if it's text-based)
-                document.getElementById('fileInfo').innerHTML = `
-                    <p><strong>File Name:</strong> ${file.name}</p>
-                    <p><strong>File Type:</strong> ${file.type}</p>
-                    <p><strong>File Size:</strong> ${file.size} bytes</p>
-                    <p><strong>File Content:</strong></p>
-                    <pre>${e.target.result}</pre>
-                `;
-            };
-
-            // Read the file as text (you could use other methods like readAsDataURL for images)
-            reader.readAsText(file);
+            console.log("File selected:", file.name);
+            document.querySelector("#p1").src="../static/pictures/" + file.name;
+        // You can now handle the file, for example, display its contents or send it to a server
         }
     });
 }
 
-function changeP2(){}
+function changeP2(){
+    document.getElementById('fileInputRight').click();
+    document.getElementById('fileInputRight').addEventListener('change', function(event) {
+        const file = event.target.files[0];  // Get the first selected file
+        if (file) {
+            console.log("File selected:", file.name);
+
+        // You can now handle the file, for example, display its contents or send it to a server
+        }
+    });
+}
 
 function writeText(){}
 

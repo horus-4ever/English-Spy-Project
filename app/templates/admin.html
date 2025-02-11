@@ -12,20 +12,22 @@
         <h1>Chapter 0</h1>
     </header>
     <main>
-        <div id="characters">
-            <img id="p1" class="picture" src="../static/pictures/p1.png" alt="Picture of the first character" onclick="changeP1()">
-            <img id="p2" class="picture" src="../static/pictures/p2.png" alt="Picture of the second character">
-        </div>
-        <div class="bubble"> 
-                <form action="" method="get" class="form-speech">
-                    <input type="text" placeholder="speaker" name="speaker" class="speaker" required />
-                    <div></div>
-                    <input type="text" placeholder="Enter the sentence here" name="speech" class="text" required />
-                    <div class="form-example">
-                        <input type="submit" value="submit" class="next"/>
-                    </div>
-                </form>    
-        </div>
+        <form action="" method="get" class="form-speech">
+            <div id="characters">
+                <img id="p1" class="picture" src="../static/pictures/p1.png" alt="Picture of the first character" onclick="changeP1()">
+                <input type="file" id="fileInputLeft" name="left_picture" hidden/>
+                <input type="file" id="fileInputRight" name="right_picture" hidden/>
+                <img id="p2" class="picture" src="../static/pictures/p2.png" alt="Picture of the second character" onclick="changeP2()">
+            </div>
+            <div class="bubble"> 
+                        <input type="text" placeholder="speaker" name="speaker" class="speaker" required />
+                        <div></div>
+                        <input type="text" placeholder="Enter the sentence here" name="speech" class="text" required />
+                        <div class="form-example">
+                            <input type="submit" value="submit" class="next"/>
+                        </div>
+            </div>
+        </form>    
     </main>
 </body>
 </html>
