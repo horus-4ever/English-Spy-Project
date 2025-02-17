@@ -29,7 +29,7 @@ def create_app():
     # create the db
     with app.app_context():
         db.create_all()
-        # populate() # remove the comment to populate the empty db with some example data
+        # populate() # Amment to populate the empty db with some example data
         
     
     return app

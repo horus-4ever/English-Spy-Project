@@ -135,3 +135,16 @@
 #node-form button:hover {
     background-color: #218838;
 }
+
+.file-drop-zone {
+    border: 2px dashed #ccc;
+    padding: 10px;
+    margin-bottom: 5px;
+    text-align: center;
+    cursor: pointer;
+}
+
+.file-drop-zone.dragover {
+    border-color: #666;
+    background-color: #f8f8f8;
+}
