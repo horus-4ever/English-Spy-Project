@@ -1,10 +1,10 @@
 from app.models import Story, StoryNode, StoryEdge
 
 
-def get_all_stories() -> list[object]:
+def get_all_stories() -> list[Story]:
     """Retrieve all the stories"""
     stories: list[Story] = Story.query.all()
-    return [story.serialize() for story in stories]
+    return stories
 
 
 def get_story(story_id: int) -> object:

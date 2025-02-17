@@ -123,3 +123,16 @@ a:hover {
   padding: 0 10px;
   font-size: 16px;
 }
+
+
+.stories-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  justify-content: center;
+}
+
+/* Ensure story cards have a consistent width */
+.story-card {
+  width: 300px;
+}

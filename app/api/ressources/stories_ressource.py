@@ -7,7 +7,8 @@ class StoriesRessource(MethodView):
     def get(self) -> object:
         """Get all the stories"""
         stories = get_all_stories()
-        return jsonify({ "stories": stories }), 200
+        serialized = [story.serialize() for story in stories]
+        return jsonify({ "stories": serialized }), 200
 
 
 class StoryDetailRessource(MethodView):
