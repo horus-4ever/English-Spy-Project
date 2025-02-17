@@ -157,7 +157,6 @@
   //  Render Functions
   // ------------------------------------------------------------------
   function renderAll() {
-    console.log("Nodes:", nodes, "Edges:", edges);
     renderNodes();
     renderEdges();
   }
@@ -384,21 +383,69 @@
   //  CRUD Functions
   // ------------------------------------------------------------------
   async function fetchStoryData() {
+    // ----- Update Nodes -----
     const resNodes = await fetch(`/api/stories/${storyId}/nodes`);
     const nodesData = await resNodes.json();
-    nodes = nodesData.nodes.map((n) => ({
-      ...n,
-      // random fallback positions for demonstration
-      x: n.x || Math.random() * 300 + 50,
-      y: n.y || Math.random() * 200 + 50,
-    }));
+    const fetchedNodes = nodesData.nodes; // Array of nodes from server
 
+    // Create a map of fetched nodes by id for quick lookup
+    const fetchedMap = new Map(fetchedNodes.map(n => [n.id, n]));
+
+    // Update existing nodes and add new ones
+    fetchedNodes.forEach(newNode => {
+      const existing = nodes.find(n => n.id === newNode.id);
+      if (existing) {
+        const x = existing.x;
+        const y = existing.y;
+        // Update non-positional properties from server
+        Object.assign(existing, newNode);
+        existing.x = x;
+        existing.y = y;
+      } else {
+        // Arrange new nodes in a grid pattern
+        const spacingX = 300; // horizontal spacing between nodes
+        const spacingY = 150; // vertical spacing between nodes
+        const columns = 5;    // number of columns in the grid
+        const index = nodes.length; // current count of nodes
+        nodes.push({
+          ...newNode,
+          x: newNode.x != null ? newNode.x : (index % columns) * spacingX + 50,
+          y: newNode.y != null ? newNode.y : Math.floor(index / columns) * spacingY + 50,
+        });
+      }
+    });
+
+    // Remove nodes that are no longer returned from the server
+    nodes = nodes.filter(n => fetchedMap.has(n.id));
+
+    // ----- Update Edges -----
     const resEdges = await fetch(`/api/stories/${storyId}/edges`);
     const edgesData = await resEdges.json();
-    edges = edgesData.edges;
+    const fetchedEdges = edgesData.edges; // Array of edges from server
+
+    // We'll define a key for each edge (assuming a combination of from and to is unique)
+    const edgeKey = edge => `${edge.from}-${edge.to}`;
+
+    // Create a map of fetched edges for quick lookup
+    const fetchedEdgesMap = new Map(fetchedEdges.map(e => [edgeKey(e), e]));
+
+    // Update existing edges and add new ones
+    fetchedEdges.forEach(newEdge => {
+      const key = edgeKey(newEdge);
+      const existingEdge = edges.find(e => edgeKey(e) === key);
+      if (existingEdge) {
+        Object.assign(existingEdge, newEdge);
+      } else {
+        edges.push(newEdge);
+      }
+    });
+
+    // Remove edges that are no longer present
+    edges = edges.filter(e => fetchedEdgesMap.has(edgeKey(e)));
 
     renderAll();
   }
+
 
   async function createNode() {
     const payload = {
