@@ -3,16 +3,14 @@ body {
   font-family: 'Roboto', sans-serif;
   background: #f7f7f7;
   margin: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 100vh;
+  /* Removed display: flex, align-items, justify-content, and height to allow normal flow */
 }
 
 .container {
   width: 100%;
   max-width: 400px;
   padding: 20px;
+  margin: 20px auto; /* Centers the container horizontally and adds vertical spacing */
 }
 
 /* Form Container */
@@ -98,22 +96,16 @@ a:hover {
   text-decoration: underline;
 }
 
-
 .error-notification {
   position: fixed;
-  /* Float on top of content */
   top: 20px;
-  /* Adjust as needed */
   right: 20px;
-  /* Adjust as needed */
   background-color: #f44336;
-  /* A nice red color */
   color: white;
   padding: 15px;
   border-radius: 4px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
   z-index: 1000;
-  /* Ensure it appears above other elements */
   display: flex;
   align-items: center;
 }

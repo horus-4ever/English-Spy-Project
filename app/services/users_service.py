@@ -42,6 +42,7 @@ def update_user_progress(user_id: int, story_node_id: int) -> object:
 
 
 def add_story_to_user(user: User, story: Story):
+    """Make a user follow a story"""
     start_node: StoryNode = get_start_node(story.id)
     user_story = UserStory(user=user, story=story, progress=start_node.id)
     db.session.add(user_story)

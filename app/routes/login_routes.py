@@ -31,3 +31,9 @@ def signup():
         else:
             create_user(username, password)
             return redirect("/login")
+        
+
+@bp.route("/logout", methods=["GET"])
+def logout():
+    del session["user_id"]
+    return redirect("/login")
