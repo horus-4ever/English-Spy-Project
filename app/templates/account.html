@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block title %}My Account{% endblock %}
+
+{% block head_extra %}
+<link rel="stylesheet" href="{{ url_for('static', filename='story-card.css') }}">
+{% endblock %}
+
+{% block content %}
+<h1>Welcome, {{ user.username }}!</h1>
+<h2>Your Stories</h2>
+
+<div class="stories-container">
+    {% if user.stories %}
+    {% for story in user.stories %}
+    <div class="story-card">
+        <div class="story-card-title">{{ story.title }}</div>
+        <div class="story-card-description">{{ story.description }}</div>
+        <div class="story-card-footer">
+            <a href="{{ url_for('story_detail', story_id=story.id) }}">Read More</a>
+        </div>
+    </div>
+    {% endfor %}
+    {% else %}
+    <p>You are not reading any stories yet.</p>
+    {% endif %}
+</div>
+{% endblock %}

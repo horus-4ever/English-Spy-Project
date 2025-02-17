@@ -1,16 +1,12 @@
-from app.models import User
+from app.models import User, UserStory, Story, StoryNode
 from app.extensions import bcrypt, db
+from app.services.stories_service import get_start_node
 
 
-def get_user_by_id(user_id: int) -> object:
+def get_user_by_id(user_id: int) -> User:
     """Retrieve a user by ID"""
     user: User | None = User.query.get(user_id)
-    return user.serialize()
-
-
-def update_user_progress(user_id: int, story_node_id: int) -> object:
-    """Update the progression of a user in a story"""
-    pass
+    return user
 
 
 def create_user(username: str, password: str) -> object:
@@ -38,3 +34,15 @@ def username_taken(username: str) -> bool:
     """Check if the username is already taken or not"""
     count: int = User.query.filter(User.username == username).count()
     return count != 0
+
+
+def update_user_progress(user_id: int, story_node_id: int) -> object:
+    """Update the progression of a user in a story"""
+    pass
+
+
+def add_story_to_user(user: User, story: Story):
+    start_node: StoryNode = get_start_node(story.id)
+    user_story = UserStory(user=user, story=story, progress=start_node.id)
+    db.session.add(user_story)
+    db.session.commit()

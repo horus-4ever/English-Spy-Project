@@ -12,6 +12,9 @@ class User(db.Model):
     id: Mapped[int] = mapped_column(primary_key=True)
     username: Mapped[str] = mapped_column(unique=True, nullable=False)
     password: Mapped[str] = mapped_column(nullable=False)
+    
+    # Relationship with the association object
+    user_stories = relationship("UserStory", back_populates="user")
 
     def __repr__(self):
         return f"<User {self.id} ({self.username})>"
