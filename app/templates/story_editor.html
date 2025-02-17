@@ -3,7 +3,7 @@
 
 {% block content %}
 <h1>Story Editor</h1>
-<p>Story ID: {{ story_id }}</p>
+<p>Story ID: <span id="story-id">{{ story_id }}</span></p>
 
 <div class="editor-container">
   <!-- Graph area -->
@@ -78,467 +78,616 @@
 </div>
 
 <script>
-  // -- Setup some global references --
-  const storyId = {{ story_id }};
-  const graphContainer = document.getElementById("graph-container");
-  const edgesSvg = document.getElementById("edges-svg");
+  /**
+   * Graph Editor for Story Nodes and Edges
+   * ---------------------------------------
+   * This module manages:
+   *  - Rendering of nodes and edges on the canvas.
+   *  - Dragging and dropping nodes (with correct offset when scrolling).
+   *  - File drop zones for left/right images.
+   *  - CRUD operations for nodes and edges via a REST API.
+   *
+   * The code is structured into different classes (GraphEditor, GraphNode, GraphEdge)
+   * to allow for improved scalability and easier addition of new functionality.
+   *
+   * Note: Adjust element selectors, API endpoints, or constants as needed.
+   */
 
-  // Our data in memory:
-  let nodes = []; // {id, node_type, content, speaker, left_img, right_img, x, y}
-  let edges = []; // {from, to, condition}
-
-  // For dragging
-  let isDragging = false;   // true once we exceed the threshold and actually move a node
-  let dragCandidate = null; // holds info from mousedown, to check threshold
-  let dragNode = null;      // which node we’re dragging (once isDragging=true)
-
-  // For selection
-  let selectedNode = null;
-
-  // LEFT IMAGE
-  const leftDropZone = document.getElementById("left-drop-zone");
-  const leftFileInput = document.getElementById("node-left-img-file");
-  const leftFileName = document.getElementById("left-file-name");
-
-  leftDropZone.addEventListener("dragover", (e) => {
-    e.preventDefault();
-    leftDropZone.classList.add("dragover");
+  document.addEventListener("DOMContentLoaded", () => {
+    // Assume the story id is available via templating
+    const storyId = Number(document.getElementById("story-id").textContent);
+    const editor = new GraphEditor(storyId);
+    editor.init();
   });
-  leftDropZone.addEventListener("dragleave", (e) => {
-    leftDropZone.classList.remove("dragover");
-  });
-  leftDropZone.addEventListener("drop", (e) => {
-    e.preventDefault();
-    leftDropZone.classList.remove("dragover");
-    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
-      leftFileInput.files = e.dataTransfer.files;
-      leftFileName.textContent = e.dataTransfer.files[0].name;
-      // Update the readonly text field with the file name (or path)
-      document.getElementById("node-left-img").value = e.dataTransfer.files[0].name;
+
+  class GraphEditor {
+    constructor(storyId) {
+      this.storyId = storyId;
+
+      // DOM Elements
+      this.graphContainer = document.getElementById("graph-container");
+      this.edgesSvg = document.getElementById("edges-svg");
+
+      // Drop zone elements for images
+      this.leftDropZone = document.getElementById("left-drop-zone");
+      this.leftFileInput = document.getElementById("node-left-img-file");
+      this.leftFileName = document.getElementById("left-file-name");
+
+      this.rightDropZone = document.getElementById("right-drop-zone");
+      this.rightFileInput = document.getElementById("node-right-img-file");
+      this.rightFileName = document.getElementById("right-file-name");
+
+      // Data: arrays of GraphNode and GraphEdge instances
+      this.nodes = [];
+      this.edges = [];
+
+      // Drag & Selection State
+      this.isDragging = false;
+      this.dragCandidate = null;
+      this.dragNode = null;
+      this.selectedNode = null;
+
+      // Constants for node dimensions (should match your CSS)
+      this.NODE_HALF_WIDTH = 75;
+      this.NODE_HALF_HEIGHT = 40;
     }
-  });
-  leftFileInput.addEventListener("change", (e) => {
-    if (leftFileInput.files && leftFileInput.files.length > 0) {
-      leftFileName.textContent = leftFileInput.files[0].name;
-      document.getElementById("node-left-img").value = leftFileInput.files[0].name;
+
+    init() {
+      this.setupDropZone(
+        this.leftDropZone,
+        this.leftFileInput,
+        this.leftFileName,
+        "node-left-img"
+      );
+      this.setupDropZone(
+        this.rightDropZone,
+        this.rightFileInput,
+        this.rightFileName,
+        "node-right-img"
+      );
+
+      this.setupGraphEvents();
+      this.setupFormEvents();
+
+      // Fetch initial story data
+      this.fetchStoryData();
     }
-  });
 
-  // RIGHT IMAGE
-  const rightDropZone = document.getElementById("right-drop-zone");
-  const rightFileInput = document.getElementById("node-right-img-file");
-  const rightFileName = document.getElementById("right-file-name");
+    /**
+     * Setup a file drop zone for images.
+     * @param {HTMLElement} dropZone
+     * @param {HTMLInputElement} fileInput
+     * @param {HTMLElement} fileNameDisplay
+     * @param {string} targetFieldId
+     */
+    setupDropZone(dropZone, fileInput, fileNameDisplay, targetFieldId) {
+      const onDragOver = (e) => {
+        e.preventDefault();
+        dropZone.classList.add("dragover");
+      };
 
-  rightDropZone.addEventListener("dragover", (e) => {
-    e.preventDefault();
-    rightDropZone.classList.add("dragover");
-  });
-  rightDropZone.addEventListener("dragleave", (e) => {
-    rightDropZone.classList.remove("dragover");
-  });
-  rightDropZone.addEventListener("drop", (e) => {
-    e.preventDefault();
-    rightDropZone.classList.remove("dragover");
-    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
-      rightFileInput.files = e.dataTransfer.files;
-      rightFileName.textContent = e.dataTransfer.files[0].value;
-      document.getElementById("node-right-img").value = e.dataTransfer.files[0].value;
+      const onDragLeave = () => {
+        dropZone.classList.remove("dragover");
+      };
+
+      const onDrop = (e) => {
+        e.preventDefault();
+        dropZone.classList.remove("dragover");
+        if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+          fileInput.files = e.dataTransfer.files;
+          const fileName = e.dataTransfer.files[0].name;
+          fileNameDisplay.textContent = fileName;
+          document.getElementById(targetFieldId).value = fileName;
+        }
+      };
+
+      const onChange = () => {
+        if (fileInput.files && fileInput.files.length > 0) {
+          const fileName = fileInput.files[0].name;
+          fileNameDisplay.textContent = fileName;
+          document.getElementById(targetFieldId).value = fileName;
+        }
+      };
+
+      dropZone.addEventListener("dragover", onDragOver);
+      dropZone.addEventListener("dragleave", onDragLeave);
+      dropZone.addEventListener("drop", onDrop);
+      fileInput.addEventListener("change", onChange);
     }
-  });
-  rightFileInput.addEventListener("change", (e) => {
-    if (rightFileInput.files && rightFileInput.files.length > 0) {
-      rightFileName.textContent = rightFileInput.files[0].value;
-      document.getElementById("node-right-img").value = rightFileInput.files[0].value;
+
+    setupGraphEvents() {
+      document.addEventListener("mousemove", (evt) => this.handleMouseMove(evt));
+      document.addEventListener("mouseup", (evt) => this.handleMouseUp(evt));
     }
-  });
+
+    setupFormEvents() {
+      document.getElementById("add-node-btn").onclick = () => this.createNode();
+      document.getElementById("save-node-btn").onclick = () => this.saveNode();
+    }
+
+    /**
+     * Sets the drag candidate for a node.
+     * @param {GraphNode} node
+     * @param {MouseEvent} evt
+     */
+    setDragCandidate(node, evt) {
+      this.dragCandidate = {
+        node,
+        startX: evt.clientX,
+        startY: evt.clientY,
+        offsetX: evt.offsetX,
+        offsetY: evt.offsetY,
+      };
+    }
+
+    handleMouseMove(evt) {
+      if (this.isDragging && this.dragNode) {
+        this.moveDraggedNode(evt);
+        return;
+      }
+      if (this.dragCandidate && !this.isDragging) {
+        const dx = evt.clientX - this.dragCandidate.startX;
+        const dy = evt.clientY - this.dragCandidate.startY;
+        if (Math.sqrt(dx * dx + dy * dy) > 5) {
+          this.isDragging = true;
+          this.dragNode = this.dragCandidate.node;
+          this.moveDraggedNode(evt);
+        }
+      }
+    }
+
+    handleMouseUp(evt) {
+      if (this.isDragging) {
+        this.isDragging = false;
+        this.dragNode = null;
+        this.dragCandidate = null;
+        return;
+      }
+      if (this.dragCandidate) {
+        this.dragCandidate = null;
+        return;
+      }
+      // Clear selection if clicking on the container (without CTRL)
+      if (this.graphContainer.contains(evt.target) && !evt.ctrlKey) {
+        this.selectedNode = null;
+        this.clearNodeForm();
+        this.render();
+      }
+    }
+
+    /**
+     * Moves the currently dragged node.
+     * Fixes scrolling issues by using the container's bounding rectangle.
+     * @param {MouseEvent} evt
+     */
+    moveDraggedNode(evt) {
+      if (!this.dragNode || !this.dragCandidate) return;
+      const containerRect = this.graphContainer.getBoundingClientRect();
+      const newX = evt.clientX - containerRect.left - this.dragCandidate.offsetX;
+      const newY = evt.clientY - containerRect.top - this.dragCandidate.offsetY;
+      this.dragNode.x = Math.max(newX, 0);
+      this.dragNode.y = Math.max(newY, 0);
+      this.render();
+    }
+
+    /**
+     * Fetches story nodes and edges from the server.
+     */
+    async fetchStoryData() {
+      try {
+        // ----- Fetch Nodes -----
+        const nodesResponse = await fetch(`/api/stories/${this.storyId}/nodes`);
+        const nodesData = await nodesResponse.json();
+        const fetchedNodes = nodesData.nodes;
+        const fetchedNodesMap = new Map(fetchedNodes.map((n) => [n.id, n]));
+
+        fetchedNodes.forEach((nodeData) => {
+          let node = this.getNodeById(nodeData.id);
+          if (node) {
+            // Preserve x/y positions
+            const { x, y } = node;
+            node.update(nodeData);
+            node.x = x;
+            node.y = y;
+          } else {
+            const spacingX = 300,
+              spacingY = 150,
+              columns = 5,
+              index = this.nodes.length;
+            node = new GraphNode(
+              {
+                ...nodeData,
+                x:
+                  nodeData.x != null
+                    ? nodeData.x
+                    : (index % columns) * spacingX + 50,
+                y:
+                  nodeData.y != null
+                    ? nodeData.y
+                    : Math.floor(index / columns) * spacingY + 50,
+              },
+              this
+            );
+            this.nodes.push(node);
+          }
+        });
+
+        // Remove nodes no longer present
+        this.nodes = this.nodes.filter((node) => fetchedNodesMap.has(node.id));
+
+        // ----- Fetch Edges -----
+        const edgesResponse = await fetch(`/api/stories/${this.storyId}/edges`);
+        const edgesData = await edgesResponse.json();
+        const fetchedEdges = edgesData.edges;
+        const edgeKey = (edge) => `${edge.from}-${edge.to}`;
+        const fetchedEdgesMap = new Map(
+          fetchedEdges.map((e) => [edgeKey(e), e])
+        );
+
+        fetchedEdges.forEach((edgeData) => {
+          let edge = this.edges.find((e) => edgeKey(e) === edgeKey(edgeData));
+          if (edge) {
+            edge.update(edgeData);
+          } else {
+            edge = new GraphEdge(edgeData, this);
+            this.edges.push(edge);
+          }
+        });
+
+        // Remove edges no longer present
+        this.edges = this.edges.filter((edge) =>
+          fetchedEdgesMap.has(edgeKey(edge))
+        );
+
+        this.render();
+      } catch (error) {
+        console.error("Error fetching story data:", error);
+      }
+    }
+
+    /**
+     * Renders both nodes and edges.
+     */
+    render() {
+      this.renderNodes();
+      this.renderEdges();
+    }
+
+    renderNodes() {
+      // Remove only the node elements, leaving the SVG untouched.
+      this.graphContainer.querySelectorAll(".story-node").forEach((nodeEl) => nodeEl.remove());
+
+      // Render each node by delegating to the GraphNode class
+      this.nodes.forEach((node) => {
+        const nodeEl = node.render();
+        this.graphContainer.appendChild(nodeEl);
+      });
+    }
 
 
-  // ------------------------------------------------------------------
-  //  Render Functions
-  // ------------------------------------------------------------------
-  function renderAll() {
-    renderNodes();
-    renderEdges();
-  }
+    renderEdges() {
+      // Clear existing edges
+      while (this.edgesSvg.firstChild) {
+        this.edgesSvg.firstChild.remove();
+      }
+      this.edges.forEach((edge) => {
+        const line = edge.render();
+        if (line) {
+          this.edgesSvg.appendChild(line);
+        }
+      });
+    }
 
-  function renderNodes() {
-    // Remove old nodes from DOM
-    document.querySelectorAll(".story-node").forEach((n) => n.remove());
+    /**
+     * Computes the intersection point on a node's border given a target point.
+     * @param {GraphNode} node
+     * @param {number} targetX
+     * @param {number} targetY
+     * @returns {x: number, y: number}
+     */
+    getIntersection(node, targetX, targetY) {
+      const halfWidth = this.NODE_HALF_WIDTH;
+      const halfHeight = this.NODE_HALF_HEIGHT;
+      const centerX = node.x + halfWidth;
+      const centerY = node.y + halfHeight;
+      let dx = targetX - centerX;
+      let dy = targetY - centerY;
 
-    nodes.forEach((node) => {
-      const el = document.createElement("div");
-      el.className = "story-node";
-      el.style.left = node.x + "px";
-      el.style.top = node.y + "px";
-
-      // Highlight if currently selected
-      if (selectedNode && selectedNode.id === node.id) {
-        el.classList.add("selected");
+      if (dx === 0 && dy === 0) {
+        return { x: centerX, y: centerY };
       }
 
-      // Title
-      const titleDiv = document.createElement("div");
-      titleDiv.className = "title";
-      titleDiv.innerText = `Node #${node.id}`;
-      el.appendChild(titleDiv);
+      const scaleX = halfWidth / Math.abs(dx);
+      const scaleY = halfHeight / Math.abs(dy);
+      const scale = Math.min(scaleX, scaleY);
 
-      // Node type
-      const typeDiv = document.createElement("div");
-      typeDiv.className = "node-type";
-      typeDiv.innerText = node.node_type;
-      el.appendChild(typeDiv);
+      return {
+        x: centerX + dx * scale,
+        y: centerY + dy * scale,
+      };
+    }
 
-      // Delete button for non-START
-      if (node.node_type !== "START") {
+    /**
+     * Returns the GraphNode with the specified id.
+     * @param {number} id
+     */
+    getNodeById(id) {
+      return this.nodes.find((node) => node.id === id);
+    }
+
+    /**
+     * Sends a request to create a new node.
+     */
+    async createNode() {
+      const payload = {
+        node_type: "DIALOG",
+        content: "New node",
+        speaker: "",
+        left_img: "",
+        right_img: "",
+      };
+      try {
+        await fetch(`/api/stories/${this.storyId}/nodes`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+        await this.fetchStoryData();
+      } catch (error) {
+        console.error("Error creating node:", error);
+      }
+    }
+
+    /**
+     * Sends a request to delete a node.
+     * @param {number} nodeId
+     */
+    async deleteNode(nodeId) {
+      const node = this.getNodeById(nodeId);
+      if (!node) return;
+      if (node.node_type === "START") {
+        alert("Can't delete the START node!");
+        return;
+      }
+      try {
+        await fetch(`/api/stories/nodes/${nodeId}`, {
+          method: "DELETE",
+        });
+        await this.fetchStoryData();
+      } catch (error) {
+        console.error("Error deleting node:", error);
+      }
+    }
+
+    /**
+     * Sends a request to create a new edge.
+     * @param {number} fromNodeId
+     * @param {number} toNodeId
+     */
+    async createEdge(fromNodeId, toNodeId) {
+      const payload = {
+        from_node_id: fromNodeId,
+        to_node_id: toNodeId,
+        condition: "SUCCESS",
+      };
+      try {
+        await fetch(`/api/stories/${this.storyId}/edges`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+        await this.fetchStoryData();
+      } catch (error) {
+        console.error("Error creating edge:", error);
+      }
+    }
+
+    loadNodeForm(nodeId) {
+      const node = this.getNodeById(nodeId);
+      if (!node) return;
+      document.getElementById("node-id").value = node.id;
+      document.getElementById("node-type").value = node.node_type;
+      document.getElementById("node-speaker").value = node.speaker;
+      document.getElementById("node-content").value = node.content;
+      document.getElementById("node-left-img").value = node.left_img;
+      document.getElementById("node-right-img").value = node.right_img;
+    }
+
+    clearNodeForm() {
+      document.getElementById("node-id").value = "";
+      document.getElementById("node-type").value = "DIALOG";
+      document.getElementById("node-speaker").value = "";
+      document.getElementById("node-content").value = "";
+      document.getElementById("node-left-img").value = "";
+      document.getElementById("node-right-img").value = "";
+    }
+
+    async saveNode() {
+      const nodeId = Number(document.getElementById("node-id").value);
+      const payload = {
+        node_type: document.getElementById("node-type").value,
+        speaker: document.getElementById("node-speaker").value,
+        content: document.getElementById("node-content").value,
+        left_img: document.getElementById("node-left-img").value,
+        right_img: document.getElementById("node-right-img").value,
+      };
+
+      try {
+        if (!nodeId) {
+          await this.createNode();
+        } else {
+          await fetch(`/api/stories/nodes/${nodeId}`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+          });
+          await this.fetchStoryData();
+        }
+      } catch (error) {
+        console.error("Error saving node:", error);
+      }
+    }
+  }
+
+  class GraphNode {
+    /**
+     * Constructs a GraphNode.
+     * @param {Object} data - Node data from the server.
+     * @param {GraphEditor} editor - The parent editor instance.
+     */
+    constructor(data, editor) {
+      this.id = data.id;
+      this.node_type = data.node_type;
+      this.content = data.content;
+      this.speaker = data.speaker;
+      this.left_img = data.left_img;
+      this.right_img = data.right_img;
+      this.x = data.x;
+      this.y = data.y;
+      this.editor = editor;
+    }
+
+    /**
+     * Updates the node's data (preserving position).
+     * @param {Object} data
+     */
+    update(data) {
+      Object.assign(this, data);
+    }
+
+    /**
+     * Creates and returns the DOM element for the node.
+     * @returns {HTMLElement}
+     */
+    render() {
+      const nodeEl = document.createElement("div");
+      nodeEl.className = "story-node";
+      nodeEl.style.left = `${this.x}px`;
+      nodeEl.style.top = `${this.y}px`;
+
+      if (this.editor.selectedNode && this.editor.selectedNode.id === this.id) {
+        nodeEl.classList.add("selected");
+      }
+
+      const titleEl = document.createElement("div");
+      titleEl.className = "title";
+      titleEl.innerText = `Node #${this.id}`;
+      nodeEl.appendChild(titleEl);
+
+      const typeEl = document.createElement("div");
+      typeEl.className = "node-type";
+      typeEl.innerText = this.node_type;
+      nodeEl.appendChild(typeEl);
+
+      if (this.node_type !== "START") {
         const delBtn = document.createElement("span");
         delBtn.className = "delete-btn";
         delBtn.innerText = "×";
         delBtn.title = "Delete node";
-        // Stop event so it doesn’t interfere with drag threshold/click
         delBtn.onclick = (e) => {
           e.stopPropagation();
-          deleteNode(node.id);
+          this.editor.deleteNode(this.id);
         };
-        el.appendChild(delBtn);
+        nodeEl.appendChild(delBtn);
       }
 
-      // =========== MOUSEDOWN LOGIC (Possible Drag / Click) ===========
-      el.onmousedown = (evt) => {
-        evt.stopPropagation(); // Don’t treat it as a background click
-
-        // If CTRL is pressed, we'll handle it in the final click 
-        // (the browser usually won't do a "drag" on ctrl+click).
-        // So just skip building a "dragCandidate" if ctrl is down.
-        if (evt.ctrlKey) {
-          return;
-        }
-        // Otherwise, we might be dragging or just clicking:
-        dragCandidate = {
-          node,
-          startX: evt.clientX,
-          startY: evt.clientY,
-          offsetX: evt.offsetX,
-          offsetY: evt.offsetY,
-        };
+      // Setup drag & selection events.
+      nodeEl.onmousedown = (evt) => {
+        evt.stopPropagation();
+        if (evt.ctrlKey) return;
+        this.editor.setDragCandidate(this, evt);
       };
 
-      // =========== CLICK LOGIC ===========
-      el.onclick = (evt) => {
-        // If we ended up dragging, the browser won't fire a normal click, 
-        // but let's just be safe:
-        if (isDragging) {
-          return;
-        }
-
-        // Check if CTRL+click => create edge from selected node to this node
+      nodeEl.onclick = (evt) => {
+        if (this.editor.isDragging) return;
         if (evt.ctrlKey) {
-          // If there's a selected node and it's not the same as this node, create an edge
-          if (selectedNode && selectedNode.id !== node.id) {
-            createEdge(selectedNode.id, node.id);
+          if (
+            this.editor.selectedNode &&
+            this.editor.selectedNode.id !== this.id
+          ) {
+            this.editor.createEdge(this.editor.selectedNode.id, this.id);
           }
-          // We do NOT change the selection, so you can chain multiple edges from one node
           return;
         }
-
-        // Otherwise, normal click => toggle selection
-        if (selectedNode && selectedNode.id === node.id) {
-          // Clicking same node => unselect
-          selectedNode = null;
-          clearNodeForm();
+        if (
+          this.editor.selectedNode &&
+          this.editor.selectedNode.id === this.id
+        ) {
+          this.editor.selectedNode = null;
+          this.editor.clearNodeForm();
         } else {
-          // Select new node
-          selectedNode = node;
-          loadNodeForm(node.id);
+          this.editor.selectedNode = this;
+          this.editor.loadNodeForm(this.id);
         }
-        renderAll();
+        this.editor.render();
       };
 
-      graphContainer.appendChild(el);
-    });
+      return nodeEl;
+    }
   }
 
-  function getIntersection(node, targetX, targetY) {
-    // Node dimensions (must match your CSS)
-    const halfWidth = 75;
-    const halfHeight = 40;
-
-    // Calculate the center of the node
-    const centerX = node.x + halfWidth;
-    const centerY = node.y + halfHeight;
-
-    // Difference vector from the center to the target point
-    let dx = targetX - centerX;
-    let dy = targetY - centerY;
-
-    // If the target is exactly at the center, return the center
-    if (dx === 0 && dy === 0) {
-      return { x: centerX, y: centerY };
+  class GraphEdge {
+    /**
+     * Constructs a GraphEdge.
+     * @param {Object} data - Edge data from the server.
+     * @param {GraphEditor} editor - The parent editor instance.
+     */
+    constructor(data, editor) {
+      this.from = Number(data.from);
+      this.to = Number(data.to);
+      this.condition = data.condition;
+      this.editor = editor;
     }
 
-    // Calculate the scale factors for reaching the node's border in each direction.
-    const scaleX = halfWidth / Math.abs(dx);
-    const scaleY = halfHeight / Math.abs(dy);
+    /**
+     * Updates the edge's data.
+     * @param {Object} data
+     */
+    update(data) {
+      Object.assign(this, data);
+    }
 
-    // Use the smaller scaling factor so that the point lies exactly on the edge
-    const scale = Math.min(scaleX, scaleY);
+    /**
+     * Creates and returns the SVG line element for the edge.
+     * @returns {SVGLineElement|null}
+     */
+    render() {
+      const fromNode = this.editor.getNodeById(this.from);
+      const toNode = this.editor.getNodeById(this.to);
+      if (!fromNode || !toNode) return null;
 
-    return {
-      x: centerX + dx * scale,
-      y: centerY + dy * scale
-    };
-  }
+      const fromCenter = {
+        x: fromNode.x + this.editor.NODE_HALF_WIDTH,
+        y: fromNode.y + this.editor.NODE_HALF_HEIGHT,
+      };
+      const toCenter = {
+        x: toNode.x + this.editor.NODE_HALF_WIDTH,
+        y: toNode.y + this.editor.NODE_HALF_HEIGHT,
+      };
 
-
-  function renderEdges() {
-    // Remove old lines
-    edgesSvg.querySelectorAll("line.edge").forEach((line) => line.remove());
-
-    edges.forEach((edge) => {
-      const fromNode = nodes.find((n) => n.id === edge.from);
-      const toNode = nodes.find((n) => n.id === edge.to);
-      if (!fromNode || !toNode) return;
-
-      // Calculate the centers of both nodes
-      const fromCenter = { x: fromNode.x + 75, y: fromNode.y + 40 };
-      const toCenter = { x: toNode.x + 75, y: toNode.y + 40 };
-
-      // Compute the intersection points on the node boundaries
-      const startPoint = getIntersection(fromNode, toCenter.x, toCenter.y);
-      // For the 'to' node, use the reverse direction (i.e. from its center toward the fromNode)
-      const endPoint = getIntersection(toNode, fromCenter.x, fromCenter.y);
+      const startPoint = this.editor.getIntersection(
+        fromNode,
+        toCenter.x,
+        toCenter.y
+      );
+      const endPoint = this.editor.getIntersection(
+        toNode,
+        fromCenter.x,
+        fromCenter.y
+      );
 
       const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
       line.setAttribute("class", "edge");
       line.setAttribute("marker-end", "url(#arrowhead)");
       line.setAttribute("stroke", "black");
       line.setAttribute("stroke-width", "2");
-
       line.setAttribute("x1", startPoint.x);
       line.setAttribute("y1", startPoint.y);
       line.setAttribute("x2", endPoint.x);
       line.setAttribute("y2", endPoint.y);
-      edgesSvg.appendChild(line);
-    });
-  }
 
-
-  // ------------------------------------------------------------------
-  //  Document-level mouse events
-  // ------------------------------------------------------------------
-  document.addEventListener("mousemove", (evt) => {
-    if (isDragging && dragNode) {
-      moveDraggedNode(evt);
-      return;
+      return line;
     }
-    if (dragCandidate && !isDragging) {
-      const dx = evt.clientX - dragCandidate.startX;
-      const dy = evt.clientY - dragCandidate.startY;
-      const distance = Math.sqrt(dx * dx + dy * dy);
-      if (distance > 5) {
-        // Start dragging
-        isDragging = true;
-        dragNode = dragCandidate.node;
-        moveDraggedNode(evt);
-      }
-    }
-  });
-
-  document.addEventListener("mouseup", (evt) => {
-    // If we were dragging, stop now
-    if (isDragging) {
-      isDragging = false;
-      dragNode = null;
-      dragCandidate = null;
-      return;
-    }
-
-    // If we had a dragCandidate but never crossed threshold =>
-    // the node's onclick handler handles the selection logic.
-    if (dragCandidate) {
-      dragCandidate = null;
-      return;
-    }
-
-    // Only unselect if the click was inside the graph container.
-    if (graphContainer.contains(evt.target)) {
-      if (!evt.ctrlKey) {
-        selectedNode = null;
-        clearNodeForm();
-        renderAll();
-      }
-    }
-  });
-
-
-  function moveDraggedNode(evt) {
-    if (!dragNode || !dragCandidate) return;
-    const newX = evt.clientX - graphContainer.offsetLeft - dragCandidate.offsetX;
-    const newY = evt.clientY - graphContainer.offsetTop - dragCandidate.offsetY;
-    dragNode.x = Math.max(newX, 0);
-    dragNode.y = Math.max(newY, 0);
-    renderAll();
   }
-
-  // ------------------------------------------------------------------
-  //  CRUD Functions
-  // ------------------------------------------------------------------
-  async function fetchStoryData() {
-    // ----- Update Nodes -----
-    const resNodes = await fetch(`/api/stories/${storyId}/nodes`);
-    const nodesData = await resNodes.json();
-    const fetchedNodes = nodesData.nodes; // Array of nodes from server
-
-    // Create a map of fetched nodes by id for quick lookup
-    const fetchedMap = new Map(fetchedNodes.map(n => [n.id, n]));
-
-    // Update existing nodes and add new ones
-    fetchedNodes.forEach(newNode => {
-      const existing = nodes.find(n => n.id === newNode.id);
-      if (existing) {
-        const x = existing.x;
-        const y = existing.y;
-        // Update non-positional properties from server
-        Object.assign(existing, newNode);
-        existing.x = x;
-        existing.y = y;
-      } else {
-        // Arrange new nodes in a grid pattern
-        const spacingX = 300; // horizontal spacing between nodes
-        const spacingY = 150; // vertical spacing between nodes
-        const columns = 5;    // number of columns in the grid
-        const index = nodes.length; // current count of nodes
-        nodes.push({
-          ...newNode,
-          x: newNode.x != null ? newNode.x : (index % columns) * spacingX + 50,
-          y: newNode.y != null ? newNode.y : Math.floor(index / columns) * spacingY + 50,
-        });
-      }
-    });
-
-    // Remove nodes that are no longer returned from the server
-    nodes = nodes.filter(n => fetchedMap.has(n.id));
-
-    // ----- Update Edges -----
-    const resEdges = await fetch(`/api/stories/${storyId}/edges`);
-    const edgesData = await resEdges.json();
-    const fetchedEdges = edgesData.edges; // Array of edges from server
-
-    // We'll define a key for each edge (assuming a combination of from and to is unique)
-    const edgeKey = edge => `${edge.from}-${edge.to}`;
-
-    // Create a map of fetched edges for quick lookup
-    const fetchedEdgesMap = new Map(fetchedEdges.map(e => [edgeKey(e), e]));
-
-    // Update existing edges and add new ones
-    fetchedEdges.forEach(newEdge => {
-      const key = edgeKey(newEdge);
-      const existingEdge = edges.find(e => edgeKey(e) === key);
-      if (existingEdge) {
-        Object.assign(existingEdge, newEdge);
-      } else {
-        edges.push(newEdge);
-      }
-    });
-
-    // Remove edges that are no longer present
-    edges = edges.filter(e => fetchedEdgesMap.has(edgeKey(e)));
-
-    renderAll();
-  }
-
-
-  async function createNode() {
-    const payload = {
-      node_type: "DIALOG",
-      content: "New node",
-      speaker: "",
-      left_img: "",
-      right_img: "",
-    };
-    await fetch(`/api/stories/${storyId}/nodes`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-    });
-    await fetchStoryData();
-  }
-
-  async function deleteNode(nodeId) {
-    const node = nodes.find((n) => n.id === nodeId);
-    if (!node) return;
-    if (node.node_type === "START") {
-      alert("Can't delete the START node!");
-      return;
-    }
-    await fetch(`/api/stories/nodes/${nodeId}`, { method: "DELETE" });
-    await fetchStoryData();
-  }
-
-  async function createEdge(fromNodeId, toNodeId) {
-    const payload = {
-      from_node_id: fromNodeId,
-      to_node_id: toNodeId,
-      condition: "SUCCESS",
-    };
-    await fetch(`/api/stories/${storyId}/edges`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-    });
-    await fetchStoryData();
-  }
-
-  // ------------------------------------------------------------------
-  //  Node Form
-  // ------------------------------------------------------------------
-  function loadNodeForm(nodeId) {
-    const node = nodes.find((n) => n.id === nodeId);
-    if (!node) return;
-    document.getElementById("node-id").value = node.id;
-    document.getElementById("node-type").value = node.node_type;
-    document.getElementById("node-speaker").value = node.speaker;
-    document.getElementById("node-content").value = node.content;
-    document.getElementById("node-left-img").value = node.left_img;
-    document.getElementById("node-right-img").value = node.right_img;
-  }
-
-  function clearNodeForm() {
-    document.getElementById("node-id").value = "";
-    document.getElementById("node-type").value = "DIALOG";
-    document.getElementById("node-speaker").value = "";
-    document.getElementById("node-content").value = "";
-    document.getElementById("node-left-img").value = "";
-    document.getElementById("node-right-img").value = "";
-  }
-
-  async function saveNode() {
-    const nodeId = Number(document.getElementById("node-id").value);
-    if (!nodeId) {
-      return createNode();
-    }
-    const payload = {
-      node_type: document.getElementById("node-type").value,
-      speaker: document.getElementById("node-speaker").value,
-      content: document.getElementById("node-content").value,
-      left_img: document.getElementById("node-left-img").value,
-      right_img: document.getElementById("node-right-img").value,
-    };
-    await fetch(`/api/stories/nodes/${nodeId}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-    });
-    await fetchStoryData();
-  }
-
-  // ------------------------------------------------------------------
-  //  DOM Setup
-  // ------------------------------------------------------------------
-  document.getElementById("add-node-btn").onclick = createNode;
-  document.getElementById("save-node-btn").onclick = saveNode;
-
-  // On page load, fetch the story data
-  window.addEventListener("load", fetchStoryData);
-
 </script>
 {% endblock %}
