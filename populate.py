@@ -4,9 +4,9 @@ from app.models import *
 def populate():
     story = Story(title="Test Story", description="This is a test story")
     # start node
-    start_node = StoryNode(node_type="START", content="", story_id=1)
-    end_node = StoryNode(node_type="END", content="", story_id=1)
-    some_node = StoryNode(node_type="DIALOG", content="Hello World!", story_id=1)
+    start_node = StoryNode(node_type="START", content="this is the story of a man named Stanley.", story_id=1, speaker="Narator",left_img="../static/pictures/p1.png", right_img="../static/pictures/p2.png")
+    end_node = StoryNode(node_type="END", content="And this is how ended the story.", story_id=1, speaker="Narator",left_img="../static/pictures/p1.png", right_img="../static/pictures/p2.png")
+    some_node = StoryNode(node_type="DIALOG", content="Hello World!", story_id=1, speaker="Narator",left_img="../static/pictures/p2.png", right_img="../static/pictures/p1.png")
 
     db.session.add(story)
     db.session.add(start_node)

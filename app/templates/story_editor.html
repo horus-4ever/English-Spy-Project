@@ -1,0 +1,393 @@
+{% extends "base.html" %}
+{% block title %}Story Editor{% endblock %}
+
+{% block content %}
+<h1>Story Editor</h1>
+<p>Story ID: {{ story_id }}</p>
+
+<div class="editor-container">
+  <!-- Graph area -->
+  <div class="graph-container" id="graph-container">
+    <!-- We will dynamically place our node <div> elements here -->
+    <!-- We'll also add an SVG for edges below -->
+    <svg id="edges-svg" width="3000" height="3000">
+      <defs>
+        <marker
+          id="arrowhead"
+          markerWidth="10"
+          markerHeight="7"
+          refX="10"
+          refY="3.5"
+          orient="auto"
+        >
+          <polygon points="0 0, 10 3.5, 0 7" fill="#555"></polygon>
+        </marker>
+      </defs>
+      <!-- Lines are inserted here by JS -->
+    </svg>
+  </div>
+
+  <!-- Sidebar with forms -->
+  <div class="editor-sidebar">
+    <h2>Node Details</h2>
+    <form id="node-form">
+      <label>ID</label>
+      <input type="text" id="node-id" readonly />
+
+      <label>Type</label>
+      <select id="node-type">
+        <option value="START">START</option>
+        <option value="DIALOG">DIALOG</option>
+        <option value="END">END</option>
+      </select>
+
+      <label>Speaker</label>
+      <input type="text" id="node-speaker" />
+
+      <label>Content</label>
+      <textarea id="node-content"></textarea>
+
+      <label>Left Image</label>
+      <input type="text" id="node-left-img" />
+
+      <label>Right Image</label>
+      <input type="text" id="node-right-img" />
+
+      <button type="button" id="save-node-btn">Save Node</button>
+    </form>
+
+    <div class="editor-actions">
+      <button id="add-node-btn">+ Add Node</button>
+    </div>
+
+    <div class="tips">
+      <h3>How to connect nodes</h3>
+      <p>
+        1. <strong>Shift+Click</strong> on a node to start the link.<br />
+        2. <strong>Shift+Click</strong> on another node to create the edge.
+      </p>
+    </div>
+  </div>
+</div>
+
+<script>
+// -- Setup some global references --
+const storyId = {{ story_id }};
+const graphContainer = document.getElementById("graph-container");
+const edgesSvg = document.getElementById("edges-svg");
+
+// Our data in memory:
+let nodes = []; // {id, node_type, content, speaker, left_img, right_img, x, y}
+let edges = []; // {from, to, condition}
+
+// For dragging
+let isDragging = false;   // true once we exceed the threshold and actually move a node
+let dragCandidate = null; // holds info from mousedown, to check threshold
+let dragNode = null;      // which node we’re dragging (once isDragging=true)
+
+// For selection
+let selectedNode = null;
+
+// ------------------------------------------------------------------
+//  Render Functions
+// ------------------------------------------------------------------
+function renderAll() {
+  console.log("Nodes:", nodes, "Edges:", edges);
+  renderNodes();
+  renderEdges();
+}
+
+function renderNodes() {
+  // Remove old nodes from DOM
+  document.querySelectorAll(".story-node").forEach((n) => n.remove());
+
+  nodes.forEach((node) => {
+    const el = document.createElement("div");
+    el.className = "story-node";
+    el.style.left = node.x + "px";
+    el.style.top = node.y + "px";
+
+    // Highlight if currently selected
+    if (selectedNode && selectedNode.id === node.id) {
+      el.classList.add("selected");
+    }
+
+    // Title
+    const titleDiv = document.createElement("div");
+    titleDiv.className = "title";
+    titleDiv.innerText = `Node #${node.id}`;
+    el.appendChild(titleDiv);
+
+    // Node type
+    const typeDiv = document.createElement("div");
+    typeDiv.className = "node-type";
+    typeDiv.innerText = node.node_type;
+    el.appendChild(typeDiv);
+
+    // Delete button for non-START
+    if (node.node_type !== "START") {
+      const delBtn = document.createElement("span");
+      delBtn.className = "delete-btn";
+      delBtn.innerText = "×";
+      delBtn.title = "Delete node";
+      // Stop event so it doesn’t interfere with drag threshold/click
+      delBtn.onclick = (e) => {
+        e.stopPropagation();
+        deleteNode(node.id);
+      };
+      el.appendChild(delBtn);
+    }
+
+    // =========== MOUSEDOWN LOGIC (Possible Drag / Click) ===========
+    el.onmousedown = (evt) => {
+      evt.stopPropagation(); // Don’t treat it as a background click
+
+      // If CTRL is pressed, we'll handle it in the final click 
+      // (the browser usually won't do a "drag" on ctrl+click).
+      // So just skip building a "dragCandidate" if ctrl is down.
+      if (evt.ctrlKey) {
+        return;
+      }
+      // Otherwise, we might be dragging or just clicking:
+      dragCandidate = {
+        node,
+        startX: evt.clientX,
+        startY: evt.clientY,
+        offsetX: evt.offsetX,
+        offsetY: evt.offsetY,
+      };
+    };
+
+    // =========== CLICK LOGIC ===========
+    el.onclick = (evt) => {
+      // If we ended up dragging, the browser won't fire a normal click, 
+      // but let's just be safe:
+      if (isDragging) {
+        return;
+      }
+
+      // Check if CTRL+click => create edge from selected node to this node
+      if (evt.ctrlKey) {
+        // If there's a selected node and it's not the same as this node, create an edge
+        if (selectedNode && selectedNode.id !== node.id) {
+          createEdge(selectedNode.id, node.id);
+        }
+        // We do NOT change the selection, so you can chain multiple edges from one node
+        return;
+      }
+
+      // Otherwise, normal click => toggle selection
+      if (selectedNode && selectedNode.id === node.id) {
+        // Clicking same node => unselect
+        selectedNode = null;
+        clearNodeForm();
+      } else {
+        // Select new node
+        selectedNode = node;
+        loadNodeForm(node.id);
+      }
+      renderAll();
+    };
+
+    graphContainer.appendChild(el);
+  });
+}
+
+function renderEdges() {
+  // Remove old lines
+  edgesSvg.querySelectorAll("line.edge").forEach((line) => line.remove());
+
+  edges.forEach((edge) => {
+    const fromNode = nodes.find((n) => n.id === edge.from);
+    const toNode = nodes.find((n) => n.id === edge.to);
+    if (!fromNode || !toNode) return;
+
+    const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    line.setAttribute("class", "edge");
+    line.setAttribute("marker-end", "url(#arrowhead)");
+
+    // Approx center of each node
+    const x1 = fromNode.x + 75;
+    const y1 = fromNode.y + 40;
+    const x2 = toNode.x + 75;
+    const y2 = toNode.y + 40;
+
+    line.setAttribute("x1", x1);
+    line.setAttribute("y1", y1);
+    line.setAttribute("x2", x2);
+    line.setAttribute("y2", y2);
+
+    edgesSvg.appendChild(line);
+  });
+}
+
+// ------------------------------------------------------------------
+//  Document-level mouse events
+// ------------------------------------------------------------------
+document.addEventListener("mousemove", (evt) => {
+  if (isDragging && dragNode) {
+    moveDraggedNode(evt);
+    return;
+  }
+  if (dragCandidate && !isDragging) {
+    const dx = evt.clientX - dragCandidate.startX;
+    const dy = evt.clientY - dragCandidate.startY;
+    const distance = Math.sqrt(dx * dx + dy * dy);
+    if (distance > 5) {
+      // Start dragging
+      isDragging = true;
+      dragNode = dragCandidate.node;
+      moveDraggedNode(evt);
+    }
+  }
+});
+
+document.addEventListener("mouseup", (evt) => {
+  // If we were dragging, stop now
+  if (isDragging) {
+    isDragging = false;
+    dragNode = null;
+    dragCandidate = null;
+    return;
+  }
+
+  // If we had a dragCandidate but never crossed threshold => 
+  // the node's onclick handler handles the selection logic.
+  if (dragCandidate) {
+    dragCandidate = null;
+    return;
+  }
+
+  // If we get here, user probably clicked the background => unselect
+  if (!evt.ctrlKey) {
+    selectedNode = null;
+    clearNodeForm();
+    renderAll();
+  }
+});
+
+function moveDraggedNode(evt) {
+  if (!dragNode || !dragCandidate) return;
+  const newX = evt.clientX - graphContainer.offsetLeft - dragCandidate.offsetX;
+  const newY = evt.clientY - graphContainer.offsetTop - dragCandidate.offsetY;
+  dragNode.x = Math.max(newX, 0);
+  dragNode.y = Math.max(newY, 0);
+  renderAll();
+}
+
+// ------------------------------------------------------------------
+//  CRUD Functions
+// ------------------------------------------------------------------
+async function fetchStoryData() {
+  const resNodes = await fetch(`/api/stories/${storyId}/nodes`);
+  const nodesData = await resNodes.json();
+  nodes = nodesData.nodes.map((n) => ({
+    ...n,
+    // random fallback positions for demonstration
+    x: n.x || Math.random() * 300 + 50,
+    y: n.y || Math.random() * 200 + 50,
+  }));
+
+  const resEdges = await fetch(`/api/stories/${storyId}/edges`);
+  const edgesData = await resEdges.json();
+  edges = edgesData.edges;
+
+  renderAll();
+}
+
+async function createNode() {
+  const payload = {
+    node_type: "DIALOG",
+    content: "New node",
+    speaker: "",
+    left_img: "",
+    right_img: "",
+  };
+  await fetch(`/api/stories/${storyId}/nodes`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+  await fetchStoryData();
+}
+
+async function deleteNode(nodeId) {
+  const node = nodes.find((n) => n.id === nodeId);
+  if (!node) return;
+  if (node.node_type === "START") {
+    alert("Can't delete the START node!");
+    return;
+  }
+  await fetch(`/api/stories/nodes/${nodeId}`, { method: "DELETE" });
+  await fetchStoryData();
+}
+
+async function createEdge(fromNodeId, toNodeId) {
+  const payload = {
+    from_node_id: fromNodeId,
+    to_node_id: toNodeId,
+    condition: "SUCCESS",
+  };
+  await fetch(`/api/stories/${storyId}/edges`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+  await fetchStoryData();
+}
+
+// ------------------------------------------------------------------
+//  Node Form
+// ------------------------------------------------------------------
+function loadNodeForm(nodeId) {
+  const node = nodes.find((n) => n.id === nodeId);
+  if (!node) return;
+  document.getElementById("node-id").value = node.id;
+  document.getElementById("node-type").value = node.node_type;
+  document.getElementById("node-speaker").value = node.speaker;
+  document.getElementById("node-content").value = node.content;
+  document.getElementById("node-left-img").value = node.left_img;
+  document.getElementById("node-right-img").value = node.right_img;
+}
+
+function clearNodeForm() {
+  document.getElementById("node-id").value = "";
+  document.getElementById("node-type").value = "DIALOG";
+  document.getElementById("node-speaker").value = "";
+  document.getElementById("node-content").value = "";
+  document.getElementById("node-left-img").value = "";
+  document.getElementById("node-right-img").value = "";
+}
+
+async function saveNode() {
+  const nodeId = Number(document.getElementById("node-id").value);
+  if (!nodeId) {
+    return createNode();
+  }
+  const payload = {
+    node_type: document.getElementById("node-type").value,
+    speaker: document.getElementById("node-speaker").value,
+    content: document.getElementById("node-content").value,
+    left_img: document.getElementById("node-left-img").value,
+    right_img: document.getElementById("node-right-img").value,
+  };
+  await fetch(`/api/stories/nodes/${nodeId}`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+  await fetchStoryData();
+}
+
+// ------------------------------------------------------------------
+//  DOM Setup
+// ------------------------------------------------------------------
+document.getElementById("add-node-btn").onclick = createNode;
+document.getElementById("save-node-btn").onclick = saveNode;
+
+// On page load, fetch the story data
+window.addEventListener("load", fetchStoryData);
+
+</script>
+{% endblock %}
+
