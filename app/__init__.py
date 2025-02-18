@@ -1,5 +1,5 @@
 from flask import Flask
-from app.routes import home_routes, login_routes, user_routes, story_editor_routes
+from app.routes import home_routes, login_routes, user_routes, story_editor_routes, read_routes
 from app.api import api_bp
 from app.extensions import db, bcrypt
 
@@ -17,6 +17,7 @@ def create_app():
     app.register_blueprint(user_routes.bp)
     app.register_blueprint(story_editor_routes.bp)
     app.register_blueprint(api_bp, url_prefix="/api")
+    app.register_blueprint(read_routes.bp)
 
     bcrypt.init_app(app)
 

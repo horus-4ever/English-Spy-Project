@@ -3,7 +3,7 @@
 {% block title %}My Account{% endblock %}
 
 {% block head_extra %}
-<link rel="stylesheet" href="{{ url_for('static', filename='story-card.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='styles/story-card.css') }}">
 {% endblock %}
 
 {% block content %}
@@ -24,5 +24,6 @@
     {% else %}
     <p>You are not reading any stories yet.</p>
     {% endif %}
+    <button> press </button>
 </div>
 {% endblock %}

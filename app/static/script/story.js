@@ -1,5 +1,5 @@
 async function nextSentence(){
-    const url = "http://127.0.0.1:5000/api/stories/nodes/" + String(number);
+    const url = "http://127.0.0.1:5000/api/stories/nodes/1/edges" //+ String(number);
     console.log(url);
     const response = await fetch(url);
     if(!response.ok) {
