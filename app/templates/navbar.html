@@ -1,0 +1,19 @@
+<nav class="navbar">
+    <div class="navbar-container">
+        <a class="navbar-brand" href="{{ url_for('home.home') }}">Home</a>
+        <ul class="navbar-menu">
+            {% if session.get("user_id") %}
+            <li class="navbar-item">
+                <a href="{{ url_for('user.account') }}">My Account</a>
+            </li>
+            <li class="navbar-item">
+                <a href="{{ url_for('login.logout') }}">Logout</a>
+            </li>
+            {% else %}
+            <li class="navbar-item">
+                <a href="{{ url_for('login.login') }}">Login</a>
+            </li>
+            {% endif %}
+        </ul>
+    </div>
+</nav>

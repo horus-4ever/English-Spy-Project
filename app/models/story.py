@@ -12,8 +12,12 @@ class Story(db.Model):
     id: Mapped[int] = mapped_column(primary_key=True)
     title: Mapped[str] = mapped_column()
     description: Mapped[str]
-    # children nodes
+    
+    # Existing relationship with StoryNode
     nodes: Mapped[list["StoryNode"]] = relationship(back_populates="story")
+    
+    # Relationship with the association object
+    user_stories = relationship("UserStory", back_populates="story")
 
     def __repr__(self):
         return f"<Story {self.title}>"

@@ -5,18 +5,33 @@ from sqlalchemy.orm import Mapped
 from sqlalchemy.orm import mapped_column
 from sqlalchemy.orm import DeclarativeBase
 from sqlalchemy.orm import relationship
+from sqlalchemy.orm import backref
+
 
 class StoryEdge(db.Model):
     __tablename__ = "story_edges"
-
-
-    from_node_id: Mapped[int] = mapped_column(db.ForeignKey("story_nodes.id"), primary_key=True)
-    to_node_id: Mapped[int] = mapped_column(db.ForeignKey("story_nodes.id"))
+    
+    from_node_id: Mapped[int] = mapped_column(
+        db.ForeignKey("story_nodes.id", ondelete="CASCADE"), 
+        primary_key=True
+    )
+    to_node_id: Mapped[int] = mapped_column(
+        db.ForeignKey("story_nodes.id", ondelete="CASCADE"), 
+        primary_key=True
+    )
     condition: Mapped[str] = mapped_column(default="SUCCESS")
 
-    # Relationship for easy access
-    from_node = relationship("StoryNode", foreign_keys=[from_node_id], backref="outgoing_edges")
-    to_node = relationship("StoryNode", foreign_keys=[to_node_id], backref="incoming_edges")
+    # Relationships for easy access with cascade behavior
+    from_node = relationship(
+        "StoryNode", 
+        foreign_keys=[from_node_id],
+        backref=backref("outgoing_edges", cascade="all, delete-orphan")
+    )
+    to_node = relationship(
+        "StoryNode", 
+        foreign_keys=[to_node_id],
+        backref=backref("incoming_edges", cascade="all, delete-orphan")
+    )
 
     def __repr__(self):
         return f"<StoryEdge {self.from_node_id} -> {self.to_node_id}>"
