@@ -2,6 +2,7 @@
 body {
   font-family: 'Roboto', sans-serif;
   background: #f7f7f7;
+  background-size:cover;
   margin: 0;
   /* Removed display: flex, align-items, justify-content, and height to allow normal flow */
 }
@@ -134,4 +135,15 @@ a:hover {
 /* Ensure story cards have a consistent width */
 .story-card {
   width: 300px;
+}
+
+.create-story {
+  text-align: center;
+  margin-top: 30pt;
+  a {
+    background-color: #0056b3;
+    color: #ffffff;
+    padding: 10pt;
+    border-radius: 10pt;
+  }
 }

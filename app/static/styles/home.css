@@ -7,7 +7,7 @@ h1 {
 }
 
 body {
-    background-image: url("/static/pictures/joli_paysage.jpg");
+    background-image: url("/static/pictures/joli_paysage.jpg") !important;
     background-size:cover;
 }
 
@@ -70,4 +70,6 @@ body {
 
 .next:hover{
     background-color: green;
+    left: 50%;
+    transform: translateX(-50%);
 }

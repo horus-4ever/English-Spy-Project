@@ -3,14 +3,34 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simple Flask App</title>
+    <title>{% block title %}Flask App{% endblock %}</title>
     <link rel="stylesheet" href="../static/styles/home.css" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles/navbar.css') }}">
+    <!--<link rel="stylesheet" href="{{ url_for('static', filename='styles/story-card.css') }}">-->
     <script src="../static/script/story.js"></script>
+    <!-- Optional: Include a small JavaScript snippet to dismiss the error -->
+    <script>
+        function dismissError() {
+            document.getElementById('error-notification').style.display = 'none';
+        }
+    </script>
 </head>
 <body id="body">
-    <header>
-        <h1>Chapter 0</h1>
-    </header>
+    <!-- Error Notification Component for flashed messages -->
+    {% with messages = get_flashed_messages(category_filter=["error"]) %}
+    {% if messages %}
+    <div id="error-notification" class="error-notification">
+        {% for msg in messages %}
+        <span>{{ msg }}</span>
+        {% endfor %}
+        <button onclick="dismissError()">x</button>
+    </div>
+    {% endif %}
+    {% endwith %}
+
+    {% include "navbar.html" %}
+
     <main>
         <div id="characters">
             <img id="p1" class="picture" src="../static/pictures/p1.png" alt="Picture of the first character">
