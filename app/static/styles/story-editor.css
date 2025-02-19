@@ -10,13 +10,10 @@
     position: relative;
     flex: 1;
     border: 2px dashed #ccc;
-    min-height: 600px;
-    min-width: 1000px;
     overflow: scroll;
 }
 
 .editor-sidebar {
-    width: 300px;
     border: 1px solid #ddd;
     padding: 10px 15px;
     background-color: #fafafa;
@@ -147,4 +144,45 @@
 .file-drop-zone.dragover {
     border-color: #666;
     background-color: #f8f8f8;
+}
+
+#edges-svg {
+    overflow: visible;
+}
+
+/* Story Info Header Styling */
+.story-info {
+    margin: 20px 0;
+    padding: 15px;
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+}
+
+.story-info p {
+    margin: 10px 0;
+}
+
+.story-info label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.story-info input[type="text"],
+.story-info textarea {
+    width: 100%;
+    padding: 8px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+/* Editor Layout (existing styles) */
+.editor-container {
+    display: flex;
+    flex-direction: row;
+    gap: 15px;
+    margin-top: 20px;
 }

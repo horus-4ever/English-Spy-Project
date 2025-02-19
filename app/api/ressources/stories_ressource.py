@@ -17,7 +17,21 @@ class StoryDetailRessource(MethodView):
     def get(self, id: int) -> object:
         """Get a specific story by ID"""
         story: Story = get_story_by_id(id)
-        return jsonify({ "story": story.serialize() }), 200
+        return jsonify(story.serialize()), 200
+    
+    def put(self, id: int):
+        """
+        Update a node
+        Endpoint: PUT /api/stories/<id>
+        Body: { "title":..., ... }
+        """
+        node: Story = Story.query.get_or_404(id)
+        data = request.get_json()
+        node.title = data.get("title", node.title)
+        node.description = data.get("description", node.description)
+        # If you store x,y in the DB, also update those
+        db.session.commit()
+        return jsonify({ "message": "Story updated" }), 200
 
 
 class StoryNodeDetailRessource(MethodView):

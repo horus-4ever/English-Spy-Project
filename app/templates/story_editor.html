@@ -4,7 +4,21 @@
 {% block content %}
 <script src="../static/script/story-editor.js"></script>
 <h1>Story Editor</h1>
-<p>Story ID: <span id="story-id">{{ story_id }}</span></p>
+
+<!-- Story Info -->
+<div class="story-info">
+  <p>
+    <strong>Story ID:</strong> <span id="story-id">{{ story_id }}</span>
+  </p>
+  <p>
+    <label for="story-name"><strong>Story Name:</strong></label>
+    <input type="text" id="story-name" value="{{ story_name }}" />
+  </p>
+  <p>
+    <label for="story-description"><strong>Story Description:</strong></label>
+    <textarea id="story-description">{{ story_description }}</textarea>
+  </p>
+</div>
 
 <div class="editor-container">
   <!-- Graph area -->
@@ -42,6 +56,15 @@
       <label>Content</label>
       <textarea id="node-content"></textarea>
 
+      <!-- Background Image -->
+      <label>Background Image</label>
+      <div class="file-drop-zone" id="background-drop-zone">
+        <button type="button" onclick="document.getElementById('node-background-img-file').click()">Choose File</button>
+        <span id="background-file-name">No file chosen</span>
+        <input type="file" id="node-background-img-file" accept="image/*" style="display:none" />
+      </div>
+      <input type="text" id="node-background-img" readonly />
+
       <!-- Left Image -->
       <label>Left Image</label>
       <div class="file-drop-zone" id="left-drop-zone">
@@ -60,7 +83,7 @@
       </div>
       <input type="text" id="node-right-img" readonly />
 
-
+      <!-- You can keep the Save Node button if you want a manual override -->
       <button type="button" id="save-node-btn">Save Node</button>
     </form>
 
@@ -71,8 +94,8 @@
     <div class="tips">
       <h3>How to connect nodes</h3>
       <p>
-        1. <strong>Crtl+Click</strong> on a node to start the link.<br />
-        2. <strong>Crtl+Click</strong> on another node to create the edge.
+        1. <strong>Shift+Click</strong> on a node to start the link.<br />
+        2. <strong>Shift+Click</strong> on another node to create the edge.
       </p>
     </div>
   </div>
