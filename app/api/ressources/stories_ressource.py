@@ -76,7 +76,8 @@ class StoryNodesRessource(MethodView):
             content = data.get("content", ""),
             speaker = data.get("speaker", ""),
             left_img = data.get("left_img", ""),
-            right_img = data.get("right_img", "")
+            right_img = data.get("right_img", ""),
+            background_img = data.get("background_img", "")
         )
         db.session.add(new_node)
         db.session.commit()
@@ -91,13 +92,14 @@ class StoryNodeDetailRessource(MethodView):
         Endpoint: PUT /api/stories/nodes/<id>
         Body: { "node_type":..., "content":..., ... }
         """
-        node = StoryNode.query.get_or_404(id)
+        node: StoryNode = StoryNode.query.get_or_404(id)
         data = request.get_json()
         node.node_type = data.get("node_type", node.node_type)
         node.content = data.get("content", node.content)
         node.speaker = data.get("speaker", node.speaker)
         node.left_img = data.get("left_img", node.left_img)
         node.right_img = data.get("right_img", node.right_img)
+        node.background_img = data.get("background_img", node.background_img)
         # If you store x,y in the DB, also update those
         db.session.commit()
         return jsonify({ "message": "Node updated" }), 200

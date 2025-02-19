@@ -446,6 +446,7 @@ class GraphEditor {
       speaker: "",
       left_img: "",
       right_img: "",
+      background_img: ""
     };
     try {
       await fetch(`/api/stories/${this.storyId}/nodes`, {
@@ -507,6 +508,7 @@ class GraphEditor {
     const node = this.getNodeById(nodeId);
     if (!node) return;
     document.getElementById("node-id").value = node.id;
+    document.getElementById("node-id-display").innerText = node.id;
     document.getElementById("node-type").value = node.node_type;
     document.getElementById("node-speaker").value = node.speaker;
     document.getElementById("node-content").value = node.content;

@@ -5,94 +5,113 @@
 <script src="../static/script/story-editor.js"></script>
 <h1>Story Editor</h1>
 
-<!-- Story Info -->
-<div class="story-info">
-  <p>
-    <strong>Story ID:</strong> <span id="story-id">{{ story_id }}</span>
-  </p>
-  <p>
-    <label for="story-name"><strong>Story Name:</strong></label>
-    <input type="text" id="story-name" value="{{ story_name }}" />
-  </p>
-  <p>
-    <label for="story-description"><strong>Story Description:</strong></label>
-    <textarea id="story-description">{{ story_description }}</textarea>
-  </p>
-</div>
-
 <div class="editor-container">
-  <!-- Graph area -->
+  <!-- Graph Area -->
   <div class="graph-container" id="graph-container">
-    <!-- We will dynamically place our node <div> elements here -->
-    <!-- We'll also add an SVG for edges below -->
+    <!-- Nodes are dynamically added here -->
+    <!-- SVG for edges -->
     <svg id="edges-svg" width="3000" height="3000">
       <defs>
-        <marker id="arrowhead" markerUnits="strokeWidth" markerWidth="10" markerHeight="10" refX="10" refY="5"
-          orient="auto">
+        <marker id="arrowhead" markerUnits="strokeWidth" markerWidth="10" markerHeight="10" refX="10" refY="5" orient="auto">
           <path d="M 0 0 L 10 5 L 0 10 Z" fill="black" />
         </marker>
       </defs>
-      <!-- Lines are inserted here by JS -->
+      <!-- Lines inserted by JS -->
     </svg>
   </div>
 
-  <!-- Sidebar with forms -->
+  <!-- Sidebar -->
   <div class="editor-sidebar">
-    <h2>Node Details</h2>
-    <form id="node-form">
-      <label>ID</label>
-      <input type="text" id="node-id" readonly />
-
-      <label>Type</label>
-      <select id="node-type">
-        <option value="START">START</option>
-        <option value="DIALOG">DIALOG</option>
-        <option value="END">END</option>
-      </select>
-
-      <label>Speaker</label>
-      <input type="text" id="node-speaker" />
-
-      <label>Content</label>
-      <textarea id="node-content"></textarea>
-
-      <!-- Background Image -->
-      <label>Background Image</label>
-      <div class="file-drop-zone" id="background-drop-zone">
-        <button type="button" onclick="document.getElementById('node-background-img-file').click()">Choose File</button>
-        <span id="background-file-name">No file chosen</span>
-        <input type="file" id="node-background-img-file" accept="image/*" style="display:none" />
+    <!-- Node Details Card -->
+    <div class="card node-details">
+      <h2>Node Details</h2>
+      <!-- Node ID Display (read-only) -->
+      <div class="node-id-info">
+        <p><strong>ID:</strong> <span id="node-id-display"></span></p>
       </div>
-      <input type="text" id="node-background-img" readonly />
-
-      <!-- Left Image -->
-      <label>Left Image</label>
-      <div class="file-drop-zone" id="left-drop-zone">
-        <button type="button" onclick="document.getElementById('node-left-img-file').click()">Choose File</button>
-        <span id="left-file-name">No file chosen</span>
-        <input type="file" id="node-left-img-file" accept="image/*" style="display:none" />
+      <!-- Hidden input to store the node ID for JavaScript use -->
+      <input type="hidden" id="node-id" />
+    
+      <form id="node-form">
+        <div class="form-group">
+          <label for="node-type">Type</label>
+          <select id="node-type">
+            <option value="START">START</option>
+            <option value="DIALOG">DIALOG</option>
+            <option value="END">END</option>
+          </select>
+        </div>
+    
+        <div class="form-group">
+          <label for="node-speaker">Speaker</label>
+          <input type="text" id="node-speaker" />
+        </div>
+    
+        <div class="form-group">
+          <label for="node-content">Content</label>
+          <textarea id="node-content"></textarea>
+        </div>
+    
+        <div class="form-group">
+          <label>Background Image</label>
+          <div class="file-drop-zone" id="background-drop-zone">
+            <button type="button" onclick="document.getElementById('node-background-img-file').click()">Choose File</button>
+            <span id="background-file-name">No file chosen</span>
+            <input type="file" id="node-background-img-file" accept="image/*" style="display:none" />
+          </div>
+          <input type="text" id="node-background-img" readonly />
+        </div>
+    
+        <div class="form-group">
+          <label>Left Image</label>
+          <div class="file-drop-zone" id="left-drop-zone">
+            <button type="button" onclick="document.getElementById('node-left-img-file').click()">Choose File</button>
+            <span id="left-file-name">No file chosen</span>
+            <input type="file" id="node-left-img-file" accept="image/*" style="display:none" />
+          </div>
+          <input type="text" id="node-left-img" readonly />
+        </div>
+    
+        <div class="form-group">
+          <label>Right Image</label>
+          <div class="file-drop-zone" id="right-drop-zone">
+            <button type="button" onclick="document.getElementById('node-right-img-file').click()">Choose File</button>
+            <span id="right-file-name">No file chosen</span>
+            <input type="file" id="node-right-img-file" accept="image/*" style="display:none" />
+          </div>
+          <input type="text" id="node-right-img" readonly />
+        </div>
+    
+        <!-- Optional manual save (auto‑sync is still in place) -->
+        <button type="button" id="save-node-btn">Save Node</button>
+      </form>
+    
+      <div class="editor-actions">
+        <button id="add-node-btn">+ Add Node</button>
       </div>
-      <input type="text" id="node-left-img" readonly />
+    </div>
+    
 
-      <!-- Right Image -->
-      <label>Right Image</label>
-      <div class="file-drop-zone" id="right-drop-zone">
-        <button type="button" onclick="document.getElementById('node-right-img-file').click()">Choose File</button>
-        <span id="right-file-name">No file chosen</span>
-        <input type="file" id="node-right-img-file" accept="image/*" style="display:none" />
+    <!-- Story Info Card -->
+    <div class="card story-info">
+      <h2>Story Info</h2>
+      <div class="form-group">
+        <label for="story-id">Story ID</label>
+        <p id="story-id">{{ story_id }}</p>
       </div>
-      <input type="text" id="node-right-img" readonly />
-
-      <!-- You can keep the Save Node button if you want a manual override -->
-      <button type="button" id="save-node-btn">Save Node</button>
-    </form>
-
-    <div class="editor-actions">
-      <button id="add-node-btn">+ Add Node</button>
+      <div class="form-group">
+        <label for="story-name">Story Name</label>
+        <input type="text" id="story-name" value="{{ story_name }}" />
+      </div>
+      <div class="form-group">
+        <label for="story-description">Story Description</label>
+        <textarea id="story-description">{{ story_description }}</textarea>
+      </div>
     </div>
 
+    <!-- Tips Section -->
     <div class="tips">
-      <h3>How to connect nodes</h3>
+      <h3>How to Connect Nodes</h3>
       <p>
         1. <strong>Shift+Click</strong> on a node to start the link.<br />
         2. <strong>Shift+Click</strong> on another node to create the edge.
