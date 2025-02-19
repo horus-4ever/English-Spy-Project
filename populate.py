@@ -7,16 +7,19 @@ def populate():
     start_node = StoryNode(node_type="START", content="this is the story of a man named Stanley.", story_id=1, speaker="Narator",left_img="../static/pictures/p1.png", right_img="../static/pictures/p2.png")
     end_node = StoryNode(node_type="END", content="And this is how ended the story.", story_id=1, speaker="Narator",left_img="../static/pictures/p1.png", right_img="../static/pictures/p2.png")
     some_node = StoryNode(node_type="DIALOG", content="Hello World!", story_id=1, speaker="Narator",left_img="../static/pictures/p2.png", right_img="../static/pictures/p1.png")
-
+    some_quiz = StoryNode(node_type="QUIZ", content="What is the color of Henry IV's white horse? !< ", story_id=1, speaker="Dora",left_img="../static/pictures/p1.png", right_img="../static/pictures/p2.png")
     db.session.add(story)
     db.session.add(start_node)
     db.session.add(end_node)
     db.session.add(some_node)
+    db.session.add(some_quiz)
     db.session.commit()
 
     edge_one = StoryEdge(from_node_id=start_node.id, to_node_id=some_node.id, condition="SUCCESS")
-    edge_two = StoryEdge(from_node_id=some_node.id, to_node_id=end_node.id, condition="SUCCESS")
-
+    edge_two = StoryEdge(from_node_id=some_node.id, to_node_id=some_quiz.id, condition="SUCCESS")
+    edge_three = StoryEdge(from_node_id=some_quiz.id, to_node_id=end_node.id, condition="SUCCESS")
+    
     db.session.add(edge_one)
     db.session.add(edge_two)
+    db.session.add(edge_three)
     db.session.commit()
