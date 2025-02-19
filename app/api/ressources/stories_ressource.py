@@ -57,9 +57,7 @@ class StoryNodesRessource(MethodView):
                 "speaker": n.speaker,
                 "left_img": n.left_img,
                 "right_img": n.right_img,
-                # If we store X/Y in the DB, add them here
-                "x": None,  # or n.x if you have columns
-                "y": None
+                "next": get_next_nodes(n.id)
             } for n in nodes ]
         }), 200
 
