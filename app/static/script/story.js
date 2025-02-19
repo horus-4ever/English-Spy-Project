@@ -1,4 +1,4 @@
-async function nextSentence(){
+async function nextSentence() {
     const url = "http://127.0.0.1:5000/api/stories/1/nodes"; //+ String(number);
     console.log(url);
     const response = await fetch(url);
@@ -35,11 +35,11 @@ async function nextSentence(){
     } catch {
         console.error("JSON error in field json.nodes[number-1].speaker\n Got " + json.nodes[number-1].speaker);
     }
-    /*try {
-        document.body.style.backgroundImage = url(json.nodes[number-1].background);
+    try {
+        document.body.style.backgroundImage = url(json.nodes[number-1].background_img);
     } catch {
-        console.error("JSON error in field json.data.background\n Got " + json.nodes[number-1].background);
-    }*/
+        console.error("JSON error in field json.data.background_img\n Got " + json.nodes[number-1].background_img);
+    }
     if (json.nodes[number-1].type != "END"){
         const url_edges = "http://127.0.0.1:5000/api/stories/1/edges";
         const rep = await fetch(url_edges);

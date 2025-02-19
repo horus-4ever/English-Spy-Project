@@ -1,6 +1,6 @@
 from flask.views import MethodView
 from flask import jsonify, request
-from app.services.stories_service import get_story_node, get_next_nodes, get_all_stories, get_story
+from app.services.stories_service import get_story_node, get_next_nodes, get_all_stories, get_story_by_id
 from app.models import StoryEdge, StoryNode, Story
 from app.extensions import db
 
@@ -16,8 +16,8 @@ class StoriesRessource(MethodView):
 class StoryDetailRessource(MethodView):
     def get(self, id: int) -> object:
         """Get a specific story by ID"""
-        story = get_story(id)
-        return jsonify({ "story": story }), 200
+        story: Story = get_story_by_id(id)
+        return jsonify({ "story": story.serialize() }), 200
 
 
 class StoryNodeDetailRessource(MethodView):
