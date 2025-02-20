@@ -8,45 +8,45 @@ def populate():
         node_type="START",
         content="this is the story of a man named Stanley.",
         story_id=1, speaker="Narator",
-        left_img="../static/pictures/p1.png",
-        right_img="../static/pictures/p2.png",
-        background_img="../static/pictures/joli_paysage.jpg"
+        left_img="p1.png",
+        right_img="p2.png",
+        background_img="joli_paysage.jpg"
     )
     end_node = StoryNode(
         node_type="END",
         content="And this is how ended the story.",
         story_id=1,
         speaker="Narator",
-        left_img="../static/pictures/p1.png",
-        right_img="../static/pictures/p2.png",
-        background_img="../static/pictures/joli_paysage.jpg"
+        left_img="p1.png",
+        right_img="p2.png",
+        background_img="joli_paysage.jpg"
     )
     some_node = StoryNode(
         node_type="DIALOG",
         content="Hello World!",
         story_id=1,
         speaker="Narator",
-        left_img="../static/pictures/p2.png",
-        right_img="../static/pictures/p1.png",
-        background_img="../static/pictures/joli_paysage.jpg"
+        left_img="p2.png",
+        right_img="p1.png",
+        background_img="joli_paysage.jpg"
     )
     some_quiz = StoryNode(
         node_type="QUIZ",
-        content="<div><p> du text </p><quiz ... ><quizchoice> alpha </quizchoice>beta</quiz><p> text après </p></div>",
+        content="<div><p> du text </p><quiz solution='alpha' ><quizchoice> alpha </quizchoice>beta</quiz><p> text après </p></div>",
         story_id=1,
         speaker="Dora",
-        left_img="../static/pictures/p1.png", 
-        right_img="../static/pictures/p2.png",
-        background_img="../static/pictures/joli_paysage.jpg"
+        left_img="p1.png", 
+        right_img="p2.png",
+        background_img="joli_paysage.jpg"
     )
     some_quiz2 = StoryNode(
         node_type="QUIZ",
-        content="<div><p> du text </p><quiz ... ></quiz><p> text après </p></div>",
+        content="<div><p> du text </p><quiz solution='blanc' ></quiz><p> text après </p></div>",
         story_id=1,
         speaker="Dora",
-        left_img="../static/pictures/p1.png",
-        right_img="../static/pictures/p2.png",
-        background_img="../static/pictures/joli_paysage.jpg"
+        left_img="p1.png",
+        right_img="p2.png",
+        background_img="joli_paysage.jpg"
     )
     db.session.add(story)
     db.session.add(start_node)
