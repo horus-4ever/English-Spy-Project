@@ -30,7 +30,15 @@ def populate():
         right_img="../static/pictures/p1.png",
         background_img="../static/pictures/joli_paysage.jpg"
     )
-    some_quiz = StoryNode(node_type="QUIZ", content="What is the color of Henry IV's white horse? !< ", story_id=1, speaker="Dora",left_img="../static/pictures/p1.png", right_img="../static/pictures/p2.png")
+    some_quiz = StoryNode(
+        node_type="QUIZ",
+        content="What is the color of Henry IV's white horse? !< ",
+        story_id=1,
+        speaker="Dora",
+        left_img="../static/pictures/p1.png",
+        right_img="../static/pictures/p2.png",
+        background_img="../static/pictures/joli_paysage.jpg"
+    )
     db.session.add(story)
     db.session.add(start_node)
     db.session.add(end_node)
