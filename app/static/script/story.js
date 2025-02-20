@@ -99,8 +99,10 @@ class StoryReader {
     async next() {
         console.log(this.currentNode["type"]);
         if (this.currentNode["type"] == "QUIZ"){
-            giveCorrection(this.currentNode["content"]);
-        } if(this.currentNode["type"] != "END" && this.nextNodesID.length > 0) {
+            if (correctAnswer(this.currentNode["content"]) && this.nextNodesID.length > 0){
+                this.currentNodeID = this.nextNodesID[0];
+            }
+        } else if(this.currentNode["type"] != "END" && this.nextNodesID.length > 0) {
             this.currentNodeID = this.nextNodesID[0]; // take the first one, for the moment
         }
         await this.fetchData();
@@ -138,7 +140,7 @@ function implementQuizContent(content){
     
 }
 
-function giveCorrection(content){
+function correctAnswer(content){
     const parser = new DOMParser();
     const htmlDoc = parser.parseFromString(content, 'text/html');
     let nodes = htmlDoc.getElementsByTagName('div')[0].childNodes;
@@ -146,12 +148,13 @@ function giveCorrection(content){
     for (let node of nodes){
         if (node.tagName == "QUIZ"){
             nb_q++;
-            console.log(node.attributes.solution.nodeValue);
             if (node.attributes.solution.nodeValue == document.getElementById("Q"+nb_q).value){
                 console.log("Bonne réponse");
             } else {
                 console.log("Mauvaise réponse, réponse attendue = ",node.attributes.solution.nodeValue,'\n ce qui a été entré = ',document.getElementById("Q"+nb_q).value);
+                return false;
             }
         }
     }
+    return true;
 }

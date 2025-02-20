@@ -23,7 +23,7 @@ def populate():
     )
     some_node = StoryNode(
         node_type="DIALOG",
-        content="Hello World!",
+        content="Hello, ready to do some exercices ?",
         story_id=1,
         speaker="Narator",
         left_img="p2.png",
@@ -32,7 +32,7 @@ def populate():
     )
     some_quiz = StoryNode(
         node_type="QUIZ",
-        content="<div><p> du text </p><quiz solution='alpha' ><quizchoice> alpha </quizchoice>beta</quiz><p> text après </p></div>",
+        content="<div><p> what is the first greek letter ? </p><quiz solution='alpha' ><quizchoice> </quizchoice> <quizchoice> alpha </quizchoice> <quizchoice> beta </quizchoice></quiz></div>",
         story_id=1,
         speaker="Dora",
         left_img="p1.png", 
@@ -41,7 +41,7 @@ def populate():
     )
     some_quiz2 = StoryNode(
         node_type="QUIZ",
-        content="<div><p> du text </p><quiz solution='blanc' ></quiz><p> text après </p></div>",
+        content="<div><p> What is the Henri IV's horse color ? </p><quiz solution='white' ></quiz><p> Spoiler, it's white </p></div>",
         story_id=1,
         speaker="Dora",
         left_img="p1.png",
