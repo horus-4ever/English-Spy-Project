@@ -34,14 +34,6 @@ class StoryDetailRessource(MethodView):
         return jsonify({ "message": "Story updated" }), 200
 
 
-class StoryNodeDetailRessource(MethodView):
-    def get(self, id: int) -> object:
-        """Get the details of a node in the story graph"""
-        node_data = get_story_node(id)
-        next_nodes = get_next_nodes(id)
-        return jsonify({ "data": node_data, "next": next_nodes }), 200
-
-
 class StoryNodesRessource(MethodView):
     def get(self, story_id: int):
         """
@@ -84,6 +76,12 @@ class StoryNodesRessource(MethodView):
 
 
 class StoryNodeDetailRessource(MethodView):
+    def get(self, id: int) -> object:
+        """Get the details of a node in the story graph"""
+        node_data = get_story_node(id)
+        next_nodes = get_next_nodes(id)
+        return jsonify({ "data": node_data, "next": next_nodes }), 200
+
     def put(self, id: int):
         """
         Update a node

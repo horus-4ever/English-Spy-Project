@@ -25,7 +25,7 @@ def get_story_node(story_node_id: int) -> object:
 def get_next_nodes(story_node_id: int) -> list[object]:
     """Get the next nodes of the story"""
     next_nodes: list[StoryEdge] | None = StoryEdge.query.filter(StoryEdge.from_node_id.is_(story_node_id)).all()
-    return [node.serialize() for node in next_nodes]
+    return [node.to_node_id for node in next_nodes]
 
 
 def get_start_node(story_id: int) -> StoryNode:
