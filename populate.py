@@ -32,7 +32,16 @@ def populate():
     )
     some_quiz = StoryNode(
         node_type="QUIZ",
-        content="What is the color of Henry IV's white horse? !< ",
+        content="<div><p> du text </p><quiz ... ><quizchoice> alpha </quizchoice>beta</quiz><p> text après </p></div>",
+        story_id=1,
+        speaker="Dora",
+        left_img="../static/pictures/p1.png", 
+        right_img="../static/pictures/p2.png",
+        background_img="../static/pictures/joli_paysage.jpg"
+    )
+    some_quiz2 = StoryNode(
+        node_type="QUIZ",
+        content="<div><p> du text </p><quiz ... ></quiz><p> text après </p></div>",
         story_id=1,
         speaker="Dora",
         left_img="../static/pictures/p1.png",
@@ -44,13 +53,16 @@ def populate():
     db.session.add(end_node)
     db.session.add(some_node)
     db.session.add(some_quiz)
+    db.session.add(some_quiz2)
     db.session.commit()
 
     edge_one = StoryEdge(from_node_id=start_node.id, to_node_id=some_node.id, condition="SUCCESS")
     edge_two = StoryEdge(from_node_id=some_node.id, to_node_id=some_quiz.id, condition="SUCCESS")
-    edge_three = StoryEdge(from_node_id=some_quiz.id, to_node_id=end_node.id, condition="SUCCESS")
+    edge_three = StoryEdge(from_node_id=some_quiz.id, to_node_id=some_quiz2.id, condition="SUCCESS")
+    edge_four = StoryEdge(from_node_id=some_quiz2.id, to_node_id=end_node.id, condition="SUCCESS")
     
     db.session.add(edge_one)
     db.session.add(edge_two)
     db.session.add(edge_three)
+    db.session.add(edge_four)
     db.session.commit()
