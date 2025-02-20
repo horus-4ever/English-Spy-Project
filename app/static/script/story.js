@@ -81,7 +81,12 @@ class StoryReader {
      * Updates the UI elements with the current node's content.
      */
     display() {
-        this.contentSection.innerHTML = this.currentNode["content"];
+        if (this.currentNode["type"] == "QUIZ"){
+            this.contentSection.innerHTML = "";
+            implementQuizContent(this.currentNode["content"]);
+        } else {
+            this.contentSection.innerHTML = this.currentNode["content"];
+        }
         this.leftImgSection.src = this.currentNode["left_img"];
         this.rightImgSection.src = this.currentNode["right_img"];
         this.speakerSection.innerHTML = this.currentNode["speaker"];
