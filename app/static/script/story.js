@@ -66,36 +66,32 @@ async function nextSentence(){
 }
 
 function implementQuizContent(content){
-    
-    var newForm = document.createElement("form");
-    newForm.id = "questions";
-    newForm.method = "POST";
-    // Append it to the 'content' div
-    document.getElementById("text").appendChild(newForm);
-    let old_i = 0;
-    let nb_q = 0;
-    for (let i=0;i<content.length;i++){
-        if (content[i]=='!' && content[i+1]=='<'){
+    const parser = new DOMParser();
+    const htmlDoc = parser.parseFromString(content, 'text/html');
+    let nodes = htmlDoc.getElementsByTagName('div')[0].childNodes;
+    let nb_q=0;
+    for (let node of nodes){
+        if (node.tagName == "QUIZ"){
             nb_q++;
-            if (old_i != i-1 && i!=0){
-                let text = String(content).substring(old_i,i-1);
-                var newParagraph = document.createElement("label");
-                newParagraph.textContent = text;
-                newParagraph.htmlFor = "Q"+nb_q;
-                // Append it to the form
-                document.getElementById("questions").appendChild(newParagraph);
+            if (node.childNodes.length == 0){
+                var newQuiz = document.createElement("input");
+                newQuiz.id = "Q"+nb_q;
+                document.getElementById("text").appendChild(newQuiz);
+            } else {
+                var newQuiz = document.createElement("select");
+                newQuiz.id = "Q"+nb_q;
+                document.getElementById("text").appendChild(newQuiz);
+                for (let quizchoice of node.childNodes){
+                    var newQuizPossibility = document.createElement("option");
+                    newQuizPossibility.textContent = quizchoice.textContent;
+                    document.getElementById("Q"+nb_q).appendChild(newQuizPossibility);
+                }
             }
-            var newQuiz = document.createElement("input");
-            newQuiz.type="text";
-            newQuiz.name="Q"+nb_q;
-            document.getElementById("questions").appendChild(newQuiz);
-            i+=2;
-            old_i=i;
+        } else if (node.tagName == "P"){
+            var newElt = document.createElement("div");
+            newElt.textContent = node.textContent;
+            document.getElementById("text").appendChild(newElt);
         }
     }
-    if (old_i != content.length && content.length!=0){
-        var newParagraph = document.createElement("div");
-        newParagraph.textContent = String(content).substring(old_i,content.length);
-        document.getElementById("questions").appendChild(newParagraph);
-    }
+    
 }
