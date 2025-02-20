@@ -1,6 +1,6 @@
 from flask.views import MethodView
 from flask import jsonify, request
-from app.services.stories_service import get_story_node, get_next_nodes, get_all_stories, get_story
+from app.services.stories_service import get_story_node, get_next_nodes, get_all_stories, get_story_by_id
 from app.models import StoryEdge, StoryNode, Story
 from app.extensions import db
 
@@ -16,16 +16,22 @@ class StoriesRessource(MethodView):
 class StoryDetailRessource(MethodView):
     def get(self, id: int) -> object:
         """Get a specific story by ID"""
-        story = get_story(id)
-        return jsonify({ "story": story }), 200
-
-
-class StoryNodeDetailRessource(MethodView):
-    def get(self, id: int) -> object:
-        """Get the details of a node in the story graph"""
-        node_data = get_story_node(id)
-        next_nodes = get_next_nodes(id)
-        return jsonify({ "data": node_data, "next": next_nodes }), 200
+        story: Story = get_story_by_id(id)
+        return jsonify(story.serialize()), 200
+    
+    def put(self, id: int):
+        """
+        Update a node
+        Endpoint: PUT /api/stories/<id>
+        Body: { "title":..., ... }
+        """
+        node: Story = Story.query.get_or_404(id)
+        data = request.get_json()
+        node.title = data.get("title", node.title)
+        node.description = data.get("description", node.description)
+        # If you store x,y in the DB, also update those
+        db.session.commit()
+        return jsonify({ "message": "Story updated" }), 200
 
 
 class StoryNodesRessource(MethodView):
@@ -43,9 +49,7 @@ class StoryNodesRessource(MethodView):
                 "speaker": n.speaker,
                 "left_img": n.left_img,
                 "right_img": n.right_img,
-                # If we store X/Y in the DB, add them here
-                "x": None,  # or n.x if you have columns
-                "y": None
+                "next": get_next_nodes(n.id)
             } for n in nodes ]
         }), 200
 
@@ -62,7 +66,8 @@ class StoryNodesRessource(MethodView):
             content = data.get("content", ""),
             speaker = data.get("speaker", ""),
             left_img = data.get("left_img", ""),
-            right_img = data.get("right_img", "")
+            right_img = data.get("right_img", ""),
+            background_img = data.get("background_img", "")
         )
         db.session.add(new_node)
         db.session.commit()
@@ -71,19 +76,26 @@ class StoryNodesRessource(MethodView):
 
 
 class StoryNodeDetailRessource(MethodView):
+    def get(self, id: int) -> object:
+        """Get the details of a node in the story graph"""
+        node_data = get_story_node(id)
+        next_nodes = get_next_nodes(id)
+        return jsonify({ "data": node_data, "next": next_nodes }), 200
+
     def put(self, id: int):
         """
         Update a node
         Endpoint: PUT /api/stories/nodes/<id>
         Body: { "node_type":..., "content":..., ... }
         """
-        node = StoryNode.query.get_or_404(id)
+        node: StoryNode = StoryNode.query.get_or_404(id)
         data = request.get_json()
         node.node_type = data.get("node_type", node.node_type)
         node.content = data.get("content", node.content)
         node.speaker = data.get("speaker", node.speaker)
         node.left_img = data.get("left_img", node.left_img)
         node.right_img = data.get("right_img", node.right_img)
+        node.background_img = data.get("background_img", node.background_img)
         # If you store x,y in the DB, also update those
         db.session.commit()
         return jsonify({ "message": "Node updated" }), 200

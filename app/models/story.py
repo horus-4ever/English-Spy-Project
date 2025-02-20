@@ -28,3 +28,11 @@ class Story(db.Model):
             "title": self.title,
             "description": self.description
         }
+    
+    @classmethod
+    def default(cls) -> "Story":
+        """Create a default empty story"""
+        return cls(
+            title="Title",
+            description="Story's description"
+        )

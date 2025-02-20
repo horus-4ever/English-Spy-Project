@@ -4,11 +4,33 @@ from app.models import *
 def populate():
     story = Story(title="Test Story", description="This is a test story")
     # start node
-    start_node = StoryNode(node_type="START", content="this is the story of a man named Stanley.", story_id=1, speaker="Narator",left_img="../static/pictures/p1.png", right_img="../static/pictures/p2.png")
-    end_node = StoryNode(node_type="END", content="And this is how ended the story.", story_id=1, speaker="Narator",left_img="../static/pictures/p1.png", right_img="../static/pictures/p2.png")
-    some_node = StoryNode(node_type="DIALOG", content="Hello World!", story_id=1, speaker="Narator",left_img="../static/pictures/p2.png", right_img="../static/pictures/p1.png")
-    some_quiz = StoryNode(node_type="QUIZ", content="<div><p> du text </p><quiz ... ><quizchoice> alpha </quizchoice>beta</quiz><p> text après </p></div>", story_id=1, speaker="Dora",left_img="../static/pictures/p1.png", right_img="../static/pictures/p2.png")
-    some_quiz2 = StoryNode(node_type="QUIZ", content="<div><p> du text </p><quiz ... ></quiz><p> text après </p></div>", story_id=1, speaker="Dora",left_img="../static/pictures/p1.png", right_img="../static/pictures/p2.png")
+    start_node = StoryNode(
+        node_type="START",
+        content="this is the story of a man named Stanley.",
+        story_id=1, speaker="Narator",
+        left_img="../static/pictures/p1.png",
+        right_img="../static/pictures/p2.png",
+        background_img="../static/pictures/joli_paysage.jpg"
+    )
+    end_node = StoryNode(
+        node_type="END",
+        content="And this is how ended the story.",
+        story_id=1,
+        speaker="Narator",
+        left_img="../static/pictures/p1.png",
+        right_img="../static/pictures/p2.png",
+        background_img="../static/pictures/joli_paysage.jpg"
+    )
+    some_node = StoryNode(
+        node_type="DIALOG",
+        content="Hello World!",
+        story_id=1,
+        speaker="Narator",
+        left_img="../static/pictures/p2.png",
+        right_img="../static/pictures/p1.png",
+        background_img="../static/pictures/joli_paysage.jpg"
+    )
+    some_quiz = StoryNode(node_type="QUIZ", content="What is the color of Henry IV's white horse? !< ", story_id=1, speaker="Dora",left_img="../static/pictures/p1.png", right_img="../static/pictures/p2.png")
     db.session.add(story)
     db.session.add(start_node)
     db.session.add(end_node)

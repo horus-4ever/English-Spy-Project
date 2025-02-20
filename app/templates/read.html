@@ -32,21 +32,19 @@
     {% include "navbar.html" %}
 
     <main>
+        <p id="storyID" style="display: hidden">{{ story_id }}</p>
         <div id="characters">
             <img id="p1" class="picture" src="../static/pictures/p1.png" alt="Picture of the first character">
             <img id="p2" class="picture" src="../static/pictures/p2.png" alt="Picture of the second character">
         </div>
         <div class="bubble"> 
-            <div class="speaker">
+            <div class="speaker" id="speaker">
                 Yoya
             </div>
             <div class="text" id="text">
-                <script>
-                    let number = 1;
-                    nextSentence();
-                </script>    
+                
             </div>
-            <button type="button" class="next" onclick="nextSentence()"> next </button> 
+            <button type="button" class="next" onclick="getReader().next()"> next </button> 
         </div>
     </main>
 </body>

@@ -1,67 +1,101 @@
-async function nextSentence(){
-    const url = "http://127.0.0.1:5000/api/stories/1/nodes"; //+ String(number);
-    console.log(url);
-    const response = await fetch(url);
-    if(!response.ok) {
-        throw new Error("HTTP error " + response.status);
+/**
+ * Global StoryReader instance.
+ * @type {StoryReader|null}
+ */
+let storyReader = null;
+
+document.addEventListener("DOMContentLoaded", async () => {
+    storyReader = new StoryReader();
+    const storyID = Number.parseInt(document.querySelector("#storyID").textContent, 10);
+    await storyReader.loadStory(storyID);
+});
+
+/**
+ * Returns the current StoryReader instance.
+ * @returns {StoryReader|null}
+ */
+const getReader = () => storyReader;
+
+
+/**
+ * Manages story data and updates the UI.
+ */
+class StoryReader {
+    constructor() {
+        this.contentSection = document.querySelector("#text");
+        this.leftImgSection = document.querySelector("#p1");
+        this.rightImgSection = document.querySelector("#p2");
+        this.speakerSection = document.querySelector("#speaker");
+        this.storyID = null;
+        this.currentNodeID = null;
+        this.currentNode = null;
+        this.nextNodesID = [];
     }
-    const json = await response.json();
-    
-    const node_type = json.nodes[number-1].node_type;
-    const content = document.querySelector(".text");
-    if (node_type != "QUIZ"){
-        try {
-            content.innerHTML = json.nodes[number-1].content;
-        } catch {
-            console.error("JSON error in field json.nodes[number-1].content\n Got " + json.nodes[number-1].content);
+
+    /**
+     * Loads the story by storyID and optionally a specific node.
+     * @param {number} storyID 
+     * @param {number|null} [nodeID=null] 
+     */
+    async loadStory(storyID, nodeID = null) {
+        this.storyID = storyID;
+        this.currentNodeID = nodeID === null ? await this.fetchStartNode() : nodeID;
+        await this.fetchData();
+    }
+
+    /**
+     * Fetches the ID of the start node.
+     * @returns {Promise<number>}
+     */
+    async fetchStartNode() {
+        const url = `/api/stories/${this.storyID}/nodes`;
+        const response = await fetch(url);
+        if(!response.ok) {
+            throw new Error("HTTP error " + response.status);
         }
-    } else {
-        content.innerHTML = "";
-        implementQuizContent(json.nodes[number-1].content);
-    }
-    
-    const left_img = document.querySelector("#p1");
-    try {
-        left_img.src = json.nodes[number-1].left_img; 
-    } catch {
-        console.error("JSON error in field json.nodes[number-1].left_img\n Got " + json.nodes[number-1].left_img);
-    }
-
-
-    const right_img = document.querySelector("#p2");
-    try {
-        right_img.src = json.nodes[number-1].right_img;
-    } catch {
-        console.error("JSON error in field json.nodes[number-1].right_img\n Got " + json.nodes[number-1].right_img);
-    }
-
-    const speaker = document.querySelector(".speaker");
-    try {
-        speaker.innerHTML = json.nodes[number-1].speaker;
-    } catch {
-        console.error("JSON error in field json.nodes[number-1].speaker\n Got " + json.nodes[number-1].speaker);
-    }
-    /*try {
-        document.body.style.backgroundImage = url(json.nodes[number-1].background);
-    } catch {
-        console.error("JSON error in field json.data.background\n Got " + json.nodes[number-1].background);
-    }*/
-
-    // change the id for the next story
-    if (json.nodes[number-1].type != "END"){
-        const url_edges = "http://127.0.0.1:5000/api/stories/1/edges";
-        const rep = await fetch(url_edges);
-        if (!rep.ok){
-            throw new Error("HTTP error " + rep.status);
+        const { nodes } = await response.json();
+        const startNode = nodes.find(node => node.node_type === "START");
+        if (startNode) {
+            return startNode.id;
         }
-        json_number = await rep.json();
-        for (let i=0;i<json_number.edges.length;i++){
-            if (json_number.edges[i].from  == number){
-                number = json_number.edges[i].to;
-                break;
-            }
+        throw new Error("Not Found");
+    }
+
+    /**
+     * Fetches data for the current node and updates the display.
+     */
+    async fetchData() {
+        const url = `/api/stories/nodes/${this.currentNodeID}`;
+        const response = await fetch(url);
+        if(!response.ok) {
+            throw new Error("HTTP error " + response.status);
         }
-        console.log("number = ",number);
+        const json = await response.json();
+        // retrieve current node and next nodes id
+        this.currentNode = json.data;
+        this.nextNodesID = json.next;
+        this.display();
+    }
+
+    /**
+     * Updates the UI elements with the current node's content.
+     */
+    display() {
+        this.contentSection.innerHTML = this.currentNode["content"];
+        this.leftImgSection.src = this.currentNode["left_img"];
+        this.rightImgSection.src = this.currentNode["right_img"];
+        this.speakerSection.innerHTML = this.currentNode["speaker"];
+        document.body.style.backgroundImage = `url(${this.currentNode["background_img"]})`;
+    }
+
+    /**
+     * Moves to the next node and updates the UI.
+     */
+    async next() {
+        if(this.currentNode.node_type !== "END" && this.nextNodesID.length > 0) {
+            this.currentNodeID = this.nextNodesID[0]; // take the first one, for the moment
+        }
+        await this.fetchData();
     }
 }
 

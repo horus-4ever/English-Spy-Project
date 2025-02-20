@@ -1,127 +1,75 @@
 /* Editor Layout */
 .editor-container {
     display: flex;
-    flex-direction: row;
     gap: 15px;
     margin-top: 20px;
 }
 
+/* Graph Container */
 .graph-container {
     position: relative;
     flex: 1;
     border: 2px dashed #ccc;
-    min-height: 600px;
-    min-width: 1000px;
-    overflow: scroll;
+    overflow: auto;
+    background-color: #fff;
 }
 
+/* Sidebar */
 .editor-sidebar {
-    width: 300px;
-    border: 1px solid #ddd;
-    padding: 10px 15px;
+    width: 320px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* Card Base Style */
+.card {
     background-color: #fafafa;
-    border-radius: 4px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    padding: 15px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
-.editor-sidebar h2 {
+/* Headings for Cards */
+.card h2 {
     margin-top: 0;
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 5px;
+    margin-bottom: 10px;
+    font-size: 18px;
 }
 
-.editor-actions {
-    margin-top: 20px;
-    text-align: center;
+/* Form Group */
+.form-group {
+    margin-bottom: 12px;
 }
-
-.editor-actions button {
+.form-group label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 5px;
+    font-size: 14px;
+}
+.form-group input[type="text"],
+.form-group select,
+.form-group textarea {
     width: 100%;
     padding: 8px;
-    font-size: 16px;
-    cursor: pointer;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+.form-group p {
+    margin: 0;
+    font-size: 14px;
 }
 
-.tips {
-    margin-top: 20px;
-    padding-top: 10px;
-    border-top: 1px solid #ddd;
-}
-
-.tips p {
-    font-size: 0.9em;
-    line-height: 1.4em;
-}
-
-/* Node Styling */
-.story-node {
-    position: absolute;
-    width: 150px;
-    min-height: 80px;
-    background-color: #fff;
-    border: 2px solid #007BFF;
-    border-radius: 6px;
-    padding: 6px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    cursor: move;
-}
-
-.story-node .title {
-    font-weight: bold;
-}
-
-.story-node .node-type {
-    font-size: 0.85em;
-    color: #555;
-}
-
-.story-node .delete-btn {
-    float: right;
-    color: #c22;
-    font-weight: bold;
-    cursor: pointer;
-    margin-left: 5px;
-}
-
-.story-node .delete-btn:hover {
-    color: #a00;
-}
-
-/* Selected Node Outline */
-.story-node.selected {
-    outline: 3px solid #ffd633;
-}
-
-/* Edge highlight */
-.story-node.highlight-edge {
-    outline: 3px dashed #fd7e14;
-    /* Orange highlight for edge-creation mode */
-}
-
-/* Edges styling (SVG <line>) */
-#edges-svg line.edge {
-    stroke: #555;
-    stroke-width: 2;
-}
-
-/* Node Form in sidebar */
+/* Node Form Specifics */
 #node-form {
     display: flex;
     flex-direction: column;
 }
-
-#node-form label {
-    margin-top: 10px;
-    font-weight: 500;
-}
-
-#node-form input[type="text"],
-#node-form select,
-#node-form textarea {
-    margin-top: 4px;
-    padding: 6px;
-    font-size: 14px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-}
-
 #node-form button {
     margin-top: 10px;
     background-color: #28a745;
@@ -131,20 +79,113 @@
     cursor: pointer;
     border-radius: 4px;
 }
-
 #node-form button:hover {
     background-color: #218838;
 }
 
+/* File Drop Zone */
 .file-drop-zone {
     border: 2px dashed #ccc;
     padding: 10px;
-    margin-bottom: 5px;
     text-align: center;
     cursor: pointer;
+    border-radius: 4px;
 }
-
 .file-drop-zone.dragover {
     border-color: #666;
-    background-color: #f8f8f8;
+    background-color: #f0f0f0;
 }
+
+/* Editor Actions */
+.editor-actions {
+    margin-top: 10px;
+    text-align: center;
+}
+.editor-actions button {
+    width: 100%;
+    padding: 10px;
+    font-size: 16px;
+    cursor: pointer;
+    background-color: #007BFF;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+}
+.editor-actions button:hover {
+    background-color: #0056b3;
+}
+
+/* Story Info Card Specifics */
+.story-info p {
+    font-size: 14px;
+    margin: 5px 0;
+}
+
+/* Tips Section */
+.tips {
+    background-color: #fefefe;
+    padding: 15px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+}
+.tips h3 {
+    margin-top: 0;
+    font-size: 16px;
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 5px;
+    margin-bottom: 10px;
+}
+.tips p {
+    font-size: 13px;
+    line-height: 1.4em;
+    margin: 0;
+}
+
+/* Node Styling (Graph) */
+.story-node {
+    position: absolute;
+    width: 150px;
+    min-height: 80px;
+    background-color: #fff;
+    border: 2px solid #007BFF;
+    border-radius: 6px;
+    padding: 6px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    cursor: move;
+}
+.story-node .title {
+    font-weight: bold;
+}
+.story-node .node-type {
+    font-size: 0.85em;
+    color: #555;
+}
+.story-node .delete-btn {
+    float: right;
+    color: #c22;
+    font-weight: bold;
+    cursor: pointer;
+    margin-left: 5px;
+}
+.story-node .delete-btn:hover {
+    color: #a00;
+}
+.story-node.selected {
+    outline: 3px solid #ffd633;
+}
+.story-node.highlight-edge {
+    outline: 3px dashed #fd7e14;
+}
+
+/* SVG Edges */
+#edges-svg line.edge {
+    stroke: #555;
+    stroke-width: 2;
+}
+
+.node-id-info {
+    margin-bottom: 10px;
+    font-size: 14px;
+    color: #555;
+  }
+  

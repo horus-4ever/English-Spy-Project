@@ -31,6 +31,8 @@
 .story-card-footer {
     margin-top: 15px;
     text-align: right;
+    display: flex;
+    justify-content: space-between;
 }
 
 .story-card-footer a {

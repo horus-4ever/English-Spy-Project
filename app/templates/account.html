@@ -11,21 +11,16 @@
 <h2>Your Stories</h2>
 
 <div class="stories-container">
-    {% if user.stories %}
-    {% for story in user.stories %}
-    <div class="story-card">
-        <div class="story-card-title">{{ story.title }}</div>
-        <div class="story-card-description">{{ story.description }}</div>
-        <div class="story-card-footer">
-            <a href="{{ url_for('story_detail', story_id=story.id) }}">Read More</a>
-        </div>
-    </div>
-    {% endfor %}
+    {% if user.user_stories %}
+        {% for user_story in user.user_stories %}
+            {% set story = user_story.story %}
+            {% include "story_card.html" %}
+        {% endfor %}
     {% else %}
     <p>You are not reading any stories yet.</p>
     {% endif %}
 </div>
 <div class="create-story">
-    <a href="editor/1"> Create a new story </a>
+    <a href="/editor/new"> Create a new story </a>
 </div>
 {% endblock %}
