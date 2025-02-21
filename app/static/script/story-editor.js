@@ -13,39 +13,14 @@
  * Note: Adjust element selectors, API endpoints, or constants as needed.
  */
 
-// Global variable to hold the CodeMirror instance.
-let htmlEditor = null;
-
-function initializeHtmlEditor() {
-  const textarea = document.getElementById("node-content");
-  // Only initialize if it is not already done.
-  if (!htmlEditor) {
-    htmlEditor = CodeMirror.fromTextArea(textarea, {
-      mode: "htmlmixed",
-      lineNumbers: true,
-      theme: "eclipse", // Choose the same theme as your included CSS.
-    });
-  }
-}
-
-function destroyHtmlEditor() {
-  if (htmlEditor) {
-    // Remove the CodeMirror wrapper and restore the original textarea.
-    const wrapper = htmlEditor.getWrapperElement();
-    wrapper.parentNode.replaceChild(htmlEditor.getTextArea(), wrapper);
-    const textarea = document.getElementById("node-content").style.display = "block";
-    htmlEditor = null;
-  }
-}
-
 function autoFormatHtml() {
-  if (htmlEditor) {
-    const currentCode = htmlEditor.getValue();
+  if (modalEditor && modalEditor.getOption("mode") === "htmlmixed") {
+    const currentCode = modalEditor.getValue();
     const formattedCode = html_beautify(currentCode, {
       indent_size: 2,
       wrap_line_length: 80,
     });
-    htmlEditor.setValue(formattedCode);
+    modalEditor.setValue(formattedCode);
   }
 }
 
@@ -53,19 +28,10 @@ function autoFormatHtml() {
 let modalEditor = null;
 
 function openEditorModal() {
-  // Only allow popup for QUIZ nodes
-  if (document.getElementById("node-type").value !== "QUIZ") return;
-
   const modal = document.getElementById("editor-modal");
   modal.style.display = "block";
-
   // Get current content from the main editor (if available) or the textarea
-  let currentContent = "";
-  if (typeof htmlEditor !== "undefined" && htmlEditor) {
-    currentContent = htmlEditor.getValue();
-  } else {
-    currentContent = document.getElementById("node-content").value;
-  }
+  currentContent = document.getElementById("node-content").value;
 
   // Set content into the modal's textarea
   const modalTextarea = document.getElementById("modal-editor");
@@ -78,22 +44,17 @@ function openEditorModal() {
     theme: "eclipse",
     viewportMargin: Infinity, // allows the editor to expand vertically as needed
   });
-
-  // Optionally, add auto-format on blur if desired:
-  modalEditor.on("blur", autoFormatHtml);
+  autoFormatHtml();
 }
 
 function closeEditorModal(saveChanges) {
   const modal = document.getElementById("editor-modal");
-
   if (saveChanges && modalEditor) {
     const updatedContent = modalEditor.getValue();
-    // Update main editor's content
-    if (typeof htmlEditor !== "undefined" && htmlEditor) {
-      htmlEditor.setValue(updatedContent);
-    } else {
-      document.getElementById("node-content").value = updatedContent;
-    }
+    // Update main editor's content and fire the change event
+    document.getElementById("node-content").value = updatedContent;
+    const event = new Event('change');
+    document.getElementById("node-content").dispatchEvent(event);
   }
 
   // Destroy modal CodeMirror instance safely
@@ -108,28 +69,26 @@ function closeEditorModal(saveChanges) {
 
 
 document.addEventListener("DOMContentLoaded", () => {
-  // Assume the story id is available via templating
-  const storyId = Number(document.getElementById("story-id").textContent);
+
+  // Set up the node-type change listener (see above).
   document.getElementById("node-type").addEventListener("change", function () {
-    if (this.value === "QUIZ") {
-      initializeHtmlEditor();
-    } else {
-      destroyHtmlEditor();
+    if (htmlEditor) {
+      if (this.value === "QUIZ") {
+        htmlEditor.setOption("mode", "htmlmixed");
+      } else {
+        htmlEditor.setOption("mode", "text/plain");
+      }
     }
   });
 
-  // Attach event listeners for the expand button and modal controls
+  // Attach event listeners for modal controls, etc.
   document.getElementById("expand-editor-btn").addEventListener("click", openEditorModal);
-
   document.getElementById("close-modal-btn").addEventListener("click", function () {
-    closeEditorModal(true); // save changes on close button click
+    closeEditorModal(true);
   });
-
   document.getElementById("save-modal-btn").addEventListener("click", function () {
     closeEditorModal(true);
   });
-
-  // Optionally, close the modal if clicking outside its content
   window.addEventListener("click", function (event) {
     const modal = document.getElementById("editor-modal");
     if (event.target === modal) {
@@ -137,10 +96,12 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-
+  // Initialize your graph editor as usual.
+  const storyId = Number(document.getElementById("story-id").textContent);
   const editor = new GraphEditor(storyId);
   editor.init();
 });
+
 
 class GraphEditor {
   constructor(storyId) {
@@ -280,10 +241,12 @@ class GraphEditor {
     if (!nodeId) return; // No node is currently selected
 
     const nodeType = document.getElementById("node-type").value;
+    /*
     const content = (nodeType === "QUIZ" && htmlEditor)
       ? htmlEditor.getValue()
       : document.getElementById("node-content").value;
 
+      */
     const payload = {
       node_type: document.getElementById("node-type").value,
       speaker: document.getElementById("node-speaker").value,
@@ -676,17 +639,6 @@ class GraphEditor {
     document.getElementById("node-content").value = node.content;
     document.getElementById("node-left-img").value = node.left_img;
     document.getElementById("node-right-img").value = node.right_img;
-
-    // If the node is a QUIZ, ensure the CodeMirror instance (if any) is updated.
-    if (node.node_type === "QUIZ") {
-      if (!htmlEditor) {
-        initializeHtmlEditor();
-      }
-      htmlEditor.setValue(node.content);
-      autoFormatHtml();
-    } else {
-      destroyHtmlEditor();
-    }
   }
 
   clearNodeForm() {

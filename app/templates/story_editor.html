@@ -61,10 +61,11 @@
 
         <div class="form-group">
           <label for="node-content">Content</label>
-          <textarea id="node-content"></textarea>
+          <!-- Hidden textarea that will be used by CodeMirror -->
+          <textarea id="node-content" style="display: none;"></textarea>
           <button type="button" id="expand-editor-btn">Expand Editor</button>
-
         </div>
+        
 
         <div class="form-group">
           <label>Background Image</label>
@@ -134,15 +135,15 @@
     </div>
   </div>
 
-<!-- Expand Editor Modal -->
-<div id="editor-modal" class="modal" style="display: none;">
-  <div class="modal-content">
-    <span id="close-modal-btn" class="close">&times;</span>
-    <h2 class="modal-title">Edit HTML Content</h2>
-    <!-- Textarea for the modal CodeMirror instance -->
-    <textarea id="modal-editor"></textarea>
-    <button type="button" id="save-modal-btn">Save Changes</button>
+  <!-- Expand Editor Modal -->
+  <div id="editor-modal" class="modal" style="display: none;">
+    <div class="modal-content">
+      <span id="close-modal-btn" class="close">&times;</span>
+      <h2 class="modal-title">Edit Node Content</h2>
+      <!-- Textarea for the modal CodeMirror instance -->
+      <textarea id="modal-editor"></textarea>
+      <button type="button" id="save-modal-btn">Save Changes</button>
+    </div>
   </div>
-</div>
 </div>
 {% endblock %}
