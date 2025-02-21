@@ -81,18 +81,27 @@ class StoryReader {
      * Updates the UI elements with the current node's content.
      */
     display() {
-        this.contentSection.innerHTML = this.currentNode["content"];
-        this.leftImgSection.src = this.currentNode["left_img"];
-        this.rightImgSection.src = this.currentNode["right_img"];
+        if (this.currentNode["type"] == "QUIZ"){
+            this.contentSection.innerHTML = "";
+            implementQuizContent(this.currentNode["content"]);
+        } else {
+            this.contentSection.innerHTML = this.currentNode["content"];
+        }
+        this.leftImgSection.src = "../static/pictures/" + this.currentNode["left_img"];
+        this.rightImgSection.src = "../static/pictures/" + this.currentNode["right_img"];
         this.speakerSection.innerHTML = this.currentNode["speaker"];
-        document.body.style.backgroundImage = `url(${this.currentNode["background_img"]})`;
+        document.body.style.backgroundImage = `url(${"../static/pictures/" + this.currentNode["background_img"]})`;
     }
 
     /**
      * Moves to the next node and updates the UI.
      */
     async next() {
-        if(this.currentNode.node_type !== "END" && this.nextNodesID.length > 0) {
+        if (this.currentNode["type"] == "QUIZ"){
+            if (correctAnswer(this.currentNode["content"]) && this.nextNodesID.length > 0){
+                this.currentNodeID = this.nextNodesID[0];
+            }
+        } else if(this.currentNode["type"] != "END" && this.nextNodesID.length > 0) {
             this.currentNodeID = this.nextNodesID[0]; // take the first one, for the moment
         }
         await this.fetchData();
@@ -128,4 +137,23 @@ function implementQuizContent(content){
         }
     }
     
+}
+
+function correctAnswer(content){
+    const parser = new DOMParser();
+    const htmlDoc = parser.parseFromString(content, 'text/html');
+    let nodes = htmlDoc.getElementsByTagName('div')[0].childNodes;
+    let nb_q=0;
+    var stat = true;
+    for (let node of nodes){
+        if (node.tagName == "QUIZ"){
+            nb_q++;
+            if (node.attributes.solution.nodeValue != document.getElementById("Q"+nb_q).value){
+                console.log("Mauvaise réponse, réponse attendue = ",node.attributes.solution.nodeValue,'\n ce qui a été entré = ',document.getElementById("Q"+nb_q).value);
+                document.getElementById("myRange").value =  +document.getElementById("myRange").value + 10;
+                stat = false;
+            }
+        }
+    }
+    return stat;
 }
