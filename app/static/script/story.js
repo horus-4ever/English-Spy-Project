@@ -265,19 +265,20 @@ class QuizParser {
     implementQuizContent(contentZone) {
         const parser = new DOMParser();
         const htmlDoc = parser.parseFromString(this.content, 'text/html');
+        const quizNodes = htmlDoc.querySelectorAll("quiz");
         const nodes = htmlDoc.getElementsByTagName('div')[0].childNodes;
-        nodes.forEach((node, index) => {
+        quizNodes.forEach((node, index) => {
             let newHtmlNode = null;
-            if (node.tagName === "QUIZ") {
-                const answer = node.getAttribute("solution");
-                newHtmlNode = this.parseQuizContent(node);
-                newHtmlNode.setAttribute("solution", answer);
-                newHtmlNode.classList.add("quiz-question");
-            } else {
-                newHtmlNode = document.importNode(node, true);
-            }
-            contentZone.appendChild(newHtmlNode);
+            const answer = node.getAttribute("solution");
+            newHtmlNode = this.parseQuizContent(node);
+            newHtmlNode.setAttribute("solution", answer);
+            newHtmlNode.classList.add("quiz-question");
+            node.replaceWith(newHtmlNode);
         });
+        nodes.forEach((node, index) => {
+            const newHtmlNode = document.importNode(node, true);
+            contentZone.appendChild(newHtmlNode);
+        })
     }
 
     /**

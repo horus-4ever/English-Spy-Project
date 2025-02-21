@@ -78,14 +78,6 @@ button:hover {
   transform: translateY(-2px);
 }
 
-/* Additional Text Styling */
-p {
-  text-align: center;
-  margin-top: 20px;
-  font-size: 14px;
-  color: #666;
-}
-
 a {
   color: #007BFF;
   text-decoration: none;
