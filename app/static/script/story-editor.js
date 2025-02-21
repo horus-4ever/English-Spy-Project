@@ -49,6 +49,62 @@ function autoFormatHtml() {
   }
 }
 
+// Global variable for the modal CodeMirror instance
+let modalEditor = null;
+
+function openEditorModal() {
+  // Only allow popup for QUIZ nodes
+  if (document.getElementById("node-type").value !== "QUIZ") return;
+
+  const modal = document.getElementById("editor-modal");
+  modal.style.display = "block";
+
+  // Get current content from the main editor (if available) or the textarea
+  let currentContent = "";
+  if (typeof htmlEditor !== "undefined" && htmlEditor) {
+    currentContent = htmlEditor.getValue();
+  } else {
+    currentContent = document.getElementById("node-content").value;
+  }
+
+  // Set content into the modal's textarea
+  const modalTextarea = document.getElementById("modal-editor");
+  modalTextarea.value = currentContent;
+
+  // Initialize a new CodeMirror instance in the modal
+  modalEditor = CodeMirror.fromTextArea(modalTextarea, {
+    mode: "htmlmixed",
+    lineNumbers: true,
+    theme: "eclipse",
+    viewportMargin: Infinity, // allows the editor to expand vertically as needed
+  });
+
+  // Optionally, add auto-format on blur if desired:
+  modalEditor.on("blur", autoFormatHtml);
+}
+
+function closeEditorModal(saveChanges) {
+  const modal = document.getElementById("editor-modal");
+
+  if (saveChanges && modalEditor) {
+    const updatedContent = modalEditor.getValue();
+    // Update main editor's content
+    if (typeof htmlEditor !== "undefined" && htmlEditor) {
+      htmlEditor.setValue(updatedContent);
+    } else {
+      document.getElementById("node-content").value = updatedContent;
+    }
+  }
+
+  // Destroy modal CodeMirror instance safely
+  if (modalEditor) {
+    const wrapper = modalEditor.getWrapperElement();
+    wrapper.parentNode.replaceChild(modalEditor.getTextArea(), wrapper);
+    modalEditor = null;
+  }
+  modal.style.display = "none";
+}
+
 
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -61,6 +117,26 @@ document.addEventListener("DOMContentLoaded", () => {
       destroyHtmlEditor();
     }
   });
+
+  // Attach event listeners for the expand button and modal controls
+  document.getElementById("expand-editor-btn").addEventListener("click", openEditorModal);
+
+  document.getElementById("close-modal-btn").addEventListener("click", function () {
+    closeEditorModal(true); // save changes on close button click
+  });
+
+  document.getElementById("save-modal-btn").addEventListener("click", function () {
+    closeEditorModal(true);
+  });
+
+  // Optionally, close the modal if clicking outside its content
+  window.addEventListener("click", function (event) {
+    const modal = document.getElementById("editor-modal");
+    if (event.target === modal) {
+      closeEditorModal(true);
+    }
+  });
+
 
   const editor = new GraphEditor(storyId);
   editor.init();

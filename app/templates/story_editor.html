@@ -24,7 +24,7 @@
     <svg id="edges-svg" width="3000" height="3000">
       <defs>
         <marker id="arrowhead" markerWidth="10" markerHeight="10" refX="10" refY="5" orient="auto">
-          <path d="M 0 0 L 10 5 L 0 10 Z"/>
+          <path d="M 0 0 L 10 5 L 0 10 Z" />
         </marker>
       </defs>
       <!-- Lines inserted by JS -->
@@ -42,7 +42,7 @@
       </div>
       <!-- Hidden input to store the node ID for JavaScript use -->
       <input type="hidden" id="node-id" />
-    
+
       <form id="node-form">
         <div class="form-group">
           <label for="node-type">Type</label>
@@ -53,27 +53,30 @@
             <option value="QUIZ">QUIZ</option>
           </select>
         </div>
-    
+
         <div class="form-group">
           <label for="node-speaker">Speaker</label>
           <input type="text" id="node-speaker" />
         </div>
-    
+
         <div class="form-group">
           <label for="node-content">Content</label>
           <textarea id="node-content"></textarea>
+          <button type="button" id="expand-editor-btn">Expand Editor</button>
+
         </div>
-    
+
         <div class="form-group">
           <label>Background Image</label>
           <div class="file-drop-zone" id="background-drop-zone">
-            <button type="button" onclick="document.getElementById('node-background-img-file').click()">Choose File</button>
+            <button type="button" onclick="document.getElementById('node-background-img-file').click()">Choose
+              File</button>
             <span id="background-file-name">No file chosen</span>
             <input type="file" id="node-background-img-file" accept="image/*" style="display:none" />
           </div>
           <input type="text" id="node-background-img" readonly />
         </div>
-    
+
         <div class="form-group">
           <label>Left Image</label>
           <div class="file-drop-zone" id="left-drop-zone">
@@ -83,7 +86,7 @@
           </div>
           <input type="text" id="node-left-img" readonly />
         </div>
-    
+
         <div class="form-group">
           <label>Right Image</label>
           <div class="file-drop-zone" id="right-drop-zone">
@@ -93,16 +96,16 @@
           </div>
           <input type="text" id="node-right-img" readonly />
         </div>
-    
+
         <!-- Optional manual save (auto‑sync is still in place) -->
         <button type="button" id="save-node-btn">Save Node</button>
       </form>
-    
+
       <div class="editor-actions">
         <button id="add-node-btn">+ Add Node</button>
       </div>
     </div>
-    
+
 
     <!-- Story Info Card -->
     <div class="card story-info">
@@ -130,5 +133,16 @@
       </p>
     </div>
   </div>
+
+<!-- Expand Editor Modal -->
+<div id="editor-modal" class="modal" style="display: none;">
+  <div class="modal-content">
+    <span id="close-modal-btn" class="close">&times;</span>
+    <h2 class="modal-title">Edit HTML Content</h2>
+    <!-- Textarea for the modal CodeMirror instance -->
+    <textarea id="modal-editor"></textarea>
+    <button type="button" id="save-modal-btn">Save Changes</button>
+  </div>
+</div>
 </div>
 {% endblock %}
