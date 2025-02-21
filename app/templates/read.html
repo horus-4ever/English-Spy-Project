@@ -1,55 +1,66 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Read{% endblock %}</title>
-    <link rel="stylesheet" href="../static/styles/home.css" />
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles/style.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles/navbar.css') }}">
-    <!--<link rel="stylesheet" href="{{ url_for('static', filename='styles/story-card.css') }}">-->
-    <script src="../static/script/story.js"></script>
-    <!-- Optional: Include a small JavaScript snippet to dismiss the error -->
-    <script>
-        function dismissError() {
-            document.getElementById('error-notification').style.display = 'none';
-        }
-    </script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Read{% endblock %}</title>
+  <link rel="stylesheet" href="../static/styles/home.css" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles/style.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles/navbar.css') }}">
+  <!-- Link new modal stylesheet -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles/modal.css') }}">
+  <script src="../static/script/story.js"></script>
+  <script>
+    function dismissError() {
+      document.getElementById('error-notification').style.display = 'none';
+    }
+    // New function to dismiss the wrong answer modal
+    function dismissModal() {
+      document.getElementById('wrong-modal').style.display = 'none';
+    }
+  </script>
 </head>
 <body id="body">
-    <!-- Error Notification Component for flashed messages -->
-    {% with messages = get_flashed_messages(category_filter=["error"]) %}
+  <!-- Error Notification Component for flashed messages -->
+  {% with messages = get_flashed_messages(category_filter=["error"]) %}
     {% if messages %}
-    <div id="error-notification" class="error-notification">
+      <div id="error-notification" class="error-notification">
         {% for msg in messages %}
-        <span>{{ msg }}</span>
+          <span>{{ msg }}</span>
         {% endfor %}
         <button onclick="dismissError()">x</button>
-    </div>
+      </div>
     {% endif %}
-    {% endwith %}
+  {% endwith %}
 
-    {% include "navbar.html" %}
+  {% include "navbar.html" %}
 
-    <main>
-        <div class="slidecontainer">
-            <progress value="0" max="100" class="slider" id="myRange"></progress>
-        </div>
-        <p id="storyID" style="display: none">{{ story_id }}</p>
-        <p id="userID" style="display: none">{{ user_id }}</p>
-        <div id="characters">
-            <img id="p1" class="picture" src="../static/pictures/p1.png" alt="Picture of the first character">
-            <img id="p2" class="picture" src="../static/pictures/p2.png" alt="Picture of the second character">
-        </div>
-        <div class="bubble"> 
-            <div class="speaker" id="speaker">
-                Yoya
-            </div>
-            <div class="text" id="text">
-                
-            </div>
-            <button type="submit" form="questions" class="next" onclick="getReader().next()"> next </button> 
-        </div>
-    </main>
+  <main>
+    <div class="slidecontainer">
+      <progress value="0" max="100" class="slider" id="myRange"></progress>
+    </div>
+    <p id="storyID" style="display: none">{{ story_id }}</p>
+    <p id="userID" style="display: none">{{ user_id }}</p>
+    <div id="characters">
+      <img id="p1" class="picture" src="../static/pictures/p1.png" alt="Picture of the first character">
+      <img id="p2" class="picture" src="../static/pictures/p2.png" alt="Picture of the second character">
+    </div>
+    <div class="bubble"> 
+      <div class="speaker" id="speaker">
+        Yoya
+      </div>
+      <div class="text" id="text">
+      </div>
+      <button type="submit" form="questions" class="next" onclick="getReader().next()"> next </button> 
+    </div>
+  </main>
+
+  <!-- Wrong Answer Modal -->
+  <div id="wrong-modal" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="dismissModal()">&times;</span>
+      <p>Wrong answer! Please try again.</p>
+    </div>
+  </div>
 </body>
 </html>

@@ -208,3 +208,36 @@
     font-size: 14px;
     color: #555;
 }
+
+/* Container around the CodeMirror editor */
+.editor-container {
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    margin: 20px 0;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+/* CodeMirror’s main wrapper */
+.CodeMirror {
+    width: 100%;
+    height: auto;
+    min-height: 200px;
+    border-radius: 4px;
+    background-color: #fff;
+    font-size: 14px;
+}
+
+/* Ensure line numbers (if enabled) and text are nicely spaced */
+.CodeMirror-gutters {
+    background-color: #f3f3f3;
+    border-right: 1px solid #ddd;
+}
+
+/* Optional: Customize the cursor or selection styles */
+.CodeMirror-cursor {
+    border-left: 1px solid #333 !important;
+}
+
+.CodeMirror-focused .CodeMirror-selected {
+    background-color: rgba(4, 170, 109, 0.2);
+}

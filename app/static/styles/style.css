@@ -147,3 +147,52 @@ a:hover {
     border-radius: 10pt;
   }
 }
+
+
+/* Common base styles for quiz input elements (both <input> and <select>) */
+.quiz-question {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-size: 16px;
+  padding: 8px 12px;
+  border: 2px solid #ccc;
+  border-radius: 4px;
+  background-color: #fff;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  outline: none;
+}
+
+/* Focus state for accessibility */
+.quiz-question:focus {
+  border-color: #0056b3;
+  box-shadow: 0 0 5px rgba(4, 170, 109, 0.5);
+}
+
+/* Custom arrow for <select> elements (modern, flat design) */
+select.quiz-question {
+  /* Remove default appearance */
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  /* Add a custom dropdown arrow */
+  background: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='10'%20height='5'%3E%3Cpolygon%20points='0,0%2010,0%205,5'%20fill='%23666'/%3E%3C/svg%3E")
+    no-repeat right 10px center;
+  background-color: #fff;
+  background-size: 10px 5px;
+}
+
+/* Error state styling for quiz inputs (both <input> and <select>) */
+.quiz-question.quiz-error {
+  border-color: #e74c3c;
+  box-shadow: 0 0 5px rgba(231, 76, 60, 0.5);
+  animation: shake 0.3s ease;
+}
+
+/* Shake animation keyframes for error state */
+@keyframes shake {
+  0% { transform: translateX(0); }
+  20% { transform: translateX(-5px); }
+  40% { transform: translateX(5px); }
+  60% { transform: translateX(-5px); }
+  80% { transform: translateX(5px); }
+  100% { transform: translateX(0); }
+}

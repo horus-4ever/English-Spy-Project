@@ -207,15 +207,22 @@ class StoryReader {
 
     correctAnswer() {
         const allQuiz = this.contentSection.querySelectorAll(".quiz-question");
+        let result = true;
         for (let quiz of allQuiz) {
             const answer = quiz.getAttribute("solution");
             const userAnswer = quiz.value;
             if (answer !== userAnswer) {
-                getUser().wrongAnswer();
-                return false;
+                quiz.classList.add("quiz-error");
+                result = false;
+            } else {
+                quiz.classList.remove("quiz-error");
             }
         };
-        return true;
+        if(!result) { // display a modal box
+            getUser().wrongAnswer();
+            document.getElementById('wrong-modal').style.display = 'block';
+        }
+        return result;
     }
 
 

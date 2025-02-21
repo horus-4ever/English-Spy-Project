@@ -32,7 +32,7 @@ def populate():
     )
     some_quiz = StoryNode(
         node_type="QUIZ",
-        content="<div><p> what is the first greek letter ? </p><quiz solution='alpha' ><quizchoice> </quizchoice> <quizchoice> alpha </quizchoice> <quizchoice> beta </quizchoice></quiz></div>",
+        content="<div><span> what is the first greek letter ? </span><quiz solution='alpha' type='multichoice'><quizchoice>alpha</quizchoice> <quizchoice>beta</quizchoice></quiz></div>",
         story_id=1,
         speaker="Dora",
         left_img="p1.png", 
@@ -41,7 +41,7 @@ def populate():
     )
     some_quiz2 = StoryNode(
         node_type="QUIZ",
-        content="<div><p> What is the Henri IV's horse color ? </p><quiz solution='white' ></quiz><p> Spoiler, it's white </p></div>",
+        content="<div><span> What is the Henri IV's horse color ? </span><quiz solution='white' ></quiz><span> Spoiler, it's white </span></div>",
         story_id=1,
         speaker="Dora",
         left_img="p1.png",
