@@ -97,7 +97,6 @@ class StoryReader {
      * Moves to the next node and updates the UI.
      */
     async next() {
-        console.log(this.currentNode["type"]);
         if (this.currentNode["type"] == "QUIZ"){
             if (correctAnswer(this.currentNode["content"]) && this.nextNodesID.length > 0){
                 this.currentNodeID = this.nextNodesID[0];
@@ -145,16 +144,16 @@ function correctAnswer(content){
     const htmlDoc = parser.parseFromString(content, 'text/html');
     let nodes = htmlDoc.getElementsByTagName('div')[0].childNodes;
     let nb_q=0;
+    var stat = true;
     for (let node of nodes){
         if (node.tagName == "QUIZ"){
             nb_q++;
-            if (node.attributes.solution.nodeValue == document.getElementById("Q"+nb_q).value){
-                console.log("Bonne réponse");
-            } else {
+            if (node.attributes.solution.nodeValue != document.getElementById("Q"+nb_q).value){
                 console.log("Mauvaise réponse, réponse attendue = ",node.attributes.solution.nodeValue,'\n ce qui a été entré = ',document.getElementById("Q"+nb_q).value);
-                return false;
+                document.getElementById("myRange").value =  +document.getElementById("myRange").value + 10;
+                stat = false;
             }
         }
     }
-    return true;
+    return stat;
 }

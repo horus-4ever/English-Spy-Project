@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Read{% endblock %}</title>
+    <title>{% block title %}End{% endblock %}</title>
     <link rel="stylesheet" href="../static/styles/home.css" />
     <link rel="stylesheet" href="{{ url_for('static', filename='styles/style.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='styles/navbar.css') }}">
@@ -32,22 +32,8 @@
     {% include "navbar.html" %}
 
     <main>
-        <div class="slidecontainer">
-            <input type="range" min="0" max="100" value="0" class="slider" id="myRange">
-        </div>
-        <p id="storyID" style="display: hidden">{{ story_id }}</p>
-        <div id="characters">
-            <img id="p1" class="picture" src="../static/pictures/p1.png" alt="Picture of the first character">
-            <img id="p2" class="picture" src="../static/pictures/p2.png" alt="Picture of the second character">
-        </div>
-        <div class="bubble"> 
-            <div class="speaker" id="speaker">
-                Yoya
-            </div>
-            <div class="text" id="text">
-                
-            </div>
-            <button type="submit" form="questions" class="next" onclick="getReader().next()"> next </button> 
+        <div id="text">
+            Oh no you loose :(
         </div>
     </main>
 </body>
