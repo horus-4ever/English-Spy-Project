@@ -146,12 +146,18 @@ class StoryEdgesRessource(MethodView):
         db.session.commit()
         return jsonify({ "message": "Edge created" }), 201
 
-    def delete(self, edge_id: int):
+    def delete(self, story_id: int):
         """
         Delete an edge
-        Endpoint: DELETE /api/stories/edges/<edge_id>
+        Endpoint: DELETE /api/stories/<stody_id>/edges/<edge_id>
         You would have to store an 'id' for your edges or handle a composite key differently
         """
+        data = request.get_json()
+        from_node_id: int = data["from_node_id"]
+        to_node_id: int = data["to_node_id"]
         # This may require changes to your StoryEdge model to have a single primary key
         # If you do not have a single primary key, you must handle the deletion differently.
-        pass
+        edge: StoryEdge = StoryEdge.query.get((from_node_id, to_node_id))
+        db.session.delete(edge)
+        db.session.commit()
+        return jsonify({ "message": "Edge deleted" }, 201)

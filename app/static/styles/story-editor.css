@@ -28,7 +28,7 @@
     border: 1px solid #ddd;
     border-radius: 6px;
     padding: 15px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 /* Headings for Cards */
@@ -44,12 +44,14 @@
 .form-group {
     margin-bottom: 12px;
 }
+
 .form-group label {
     display: block;
     font-weight: bold;
     margin-bottom: 5px;
     font-size: 14px;
 }
+
 .form-group input[type="text"],
 .form-group select,
 .form-group textarea {
@@ -60,6 +62,7 @@
     border-radius: 4px;
     box-sizing: border-box;
 }
+
 .form-group p {
     margin: 0;
     font-size: 14px;
@@ -70,6 +73,7 @@
     display: flex;
     flex-direction: column;
 }
+
 #node-form button {
     margin-top: 10px;
     background-color: #28a745;
@@ -79,6 +83,7 @@
     cursor: pointer;
     border-radius: 4px;
 }
+
 #node-form button:hover {
     background-color: #218838;
 }
@@ -91,6 +96,7 @@
     cursor: pointer;
     border-radius: 4px;
 }
+
 .file-drop-zone.dragover {
     border-color: #666;
     background-color: #f0f0f0;
@@ -101,6 +107,7 @@
     margin-top: 10px;
     text-align: center;
 }
+
 .editor-actions button {
     width: 100%;
     padding: 10px;
@@ -111,6 +118,7 @@
     border: none;
     border-radius: 4px;
 }
+
 .editor-actions button:hover {
     background-color: #0056b3;
 }
@@ -128,6 +136,7 @@
     border: 1px solid #ddd;
     border-radius: 6px;
 }
+
 .tips h3 {
     margin-top: 0;
     font-size: 16px;
@@ -135,6 +144,7 @@
     padding-bottom: 5px;
     margin-bottom: 10px;
 }
+
 .tips p {
     font-size: 13px;
     line-height: 1.4em;
@@ -150,16 +160,19 @@
     border: 2px solid #007BFF;
     border-radius: 6px;
     padding: 6px;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     cursor: move;
 }
+
 .story-node .title {
     font-weight: bold;
 }
+
 .story-node .node-type {
     font-size: 0.85em;
     color: #555;
 }
+
 .story-node .delete-btn {
     float: right;
     color: #c22;
@@ -167,25 +180,31 @@
     cursor: pointer;
     margin-left: 5px;
 }
+
 .story-node .delete-btn:hover {
     color: #a00;
 }
+
 .story-node.selected {
     outline: 3px solid #ffd633;
 }
+
 .story-node.highlight-edge {
     outline: 3px dashed #fd7e14;
 }
 
-/* SVG Edges */
-#edges-svg line.edge {
-    stroke: #555;
-    stroke-width: 2;
+.graph-container,
+#edges-svg,
+#edges-svg * {
+    pointer-events: auto;
+}
+
+#edges-svg line.edge.selected {
+    stroke: red;
 }
 
 .node-id-info {
     margin-bottom: 10px;
     font-size: 14px;
     color: #555;
-  }
-  
+}

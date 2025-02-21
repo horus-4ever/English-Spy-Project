@@ -38,8 +38,8 @@ class GraphEditor {
     this.rightFileName = document.getElementById("right-file-name");
 
     this.backgroundDropZone = document.getElementById("background-drop-zone");
-  this.backgroundFileInput = document.getElementById("node-background-img-file");
-  this.backgroundFileName = document.getElementById("background-file-name");
+    this.backgroundFileInput = document.getElementById("node-background-img-file");
+    this.backgroundFileName = document.getElementById("background-file-name");
 
     // Data: arrays of GraphNode and GraphEdge instances
     this.nodes = [];
@@ -50,6 +50,7 @@ class GraphEditor {
     this.dragCandidate = null;
     this.dragNode = null;
     this.selectedNode = null;
+    this.selectedEdge = null;
 
     // Constants for node dimensions (should match your CSS)
     this.NODE_HALF_WIDTH = 75;
@@ -98,46 +99,56 @@ class GraphEditor {
       () => this.autoSyncNode()
     );
 
+    // Add global keydown listener for deleting the selected edge.
+    document.addEventListener("keydown", (evt) => {
+      // Ensure the event target is not an input or textarea.
+      if (["INPUT", "TEXTAREA"].indexOf(evt.target.tagName) === -1) {
+        if ((evt.key === "Delete" || evt.key === "Backspace") && this.selectedEdge) {
+          this.deleteEdge(this.selectedEdge);
+        }
+      }
+    });
+
     // Fetch initial story data
     this.fetchStoryData();
   }
 
-    /**
-   * Generic helper: Attaches "input" and "change" listeners to a list of element IDs.
-   * When any of the fields change, the provided syncFunction is called.
-   * @param {string[]} fields - Array of element IDs.
-   * @param {Function} syncFunction - Callback to call on change.
-   */
-    setupAutoSync(fields, syncFunction) {
-      fields.forEach(fieldId => {
-        const el = document.getElementById(fieldId);
-        if (el) {
-          el.addEventListener("input", syncFunction);
-          el.addEventListener("change", syncFunction);
-        }
-      });
-    }
-  
-    /**
-     * Immediately syncs the story fields (name and description) to the server.
-     * Assumes a single endpoint (/api/stories/{storyId}) that accepts a payload
-     * with both "name" and "description" keys.
-     */
-    async autoSyncStory() {
-      const title = document.getElementById("story-name").value;
-      const description = document.getElementById("story-description").value;
-      const payload = { title, description };
-      try {
-        await fetch(`/api/stories/${this.storyId}`, {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload)
-        });
-        // Optionally provide visual feedback here (e.g. flash "Saved!")
-      } catch (error) {
-        console.error("Error auto-syncing story fields:", error);
+  /**
+ * Generic helper: Attaches "input" and "change" listeners to a list of element IDs.
+ * When any of the fields change, the provided syncFunction is called.
+ * @param {string[]} fields - Array of element IDs.
+ * @param {Function} syncFunction - Callback to call on change.
+ */
+  setupAutoSync(fields, syncFunction) {
+    fields.forEach(fieldId => {
+      const el = document.getElementById(fieldId);
+      if (el) {
+        el.addEventListener("input", syncFunction);
+        el.addEventListener("change", syncFunction);
       }
+    });
+  }
+
+  /**
+   * Immediately syncs the story fields (name and description) to the server.
+   * Assumes a single endpoint (/api/stories/{storyId}) that accepts a payload
+   * with both "name" and "description" keys.
+   */
+  async autoSyncStory() {
+    const title = document.getElementById("story-name").value;
+    const description = document.getElementById("story-description").value;
+    const payload = { title, description };
+    try {
+      await fetch(`/api/stories/${this.storyId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+      // Optionally provide visual feedback here (e.g. flash "Saved!")
+    } catch (error) {
+      console.error("Error auto-syncing story fields:", error);
     }
+  }
 
   /**
    * Immediately syncs the current node attributes to the server.
@@ -266,6 +277,10 @@ class GraphEditor {
     if (this.graphContainer.contains(evt.target) && !evt.ctrlKey) {
       this.selectedNode = null;
       this.clearNodeForm();
+      this.render();
+    }
+    if (!evt.target.classList.contains("edge") && !evt.ctrlKey) {
+      this.selectedEdge = null;
       this.render();
     }
   }
@@ -504,6 +519,25 @@ class GraphEditor {
     }
   }
 
+  async deleteEdge(edge) {
+    const payload = {
+      from_node_id: edge.from,
+      to_node_id: edge.to,
+    };
+    try {
+      // Adjust the API endpoint as needed. This example assumes a query string.
+      await fetch(`/api/stories/${this.storyId}/edges`, {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+      this.selectedEdge = null; // Clear the selection.
+      await this.fetchStoryData(); // Refresh data.
+    } catch (error) {
+      console.error("Error deleting edge:", error);
+    }
+  }
+
   loadNodeForm(nodeId) {
     const node = this.getNodeById(nodeId);
     if (!node) return;
@@ -550,6 +584,7 @@ class GraphEditor {
       console.error("Error saving node:", error);
     }
   }
+
 }
 
 class GraphNode {
@@ -716,6 +751,26 @@ class GraphEdge {
     line.setAttribute("y1", startPoint.y);
     line.setAttribute("x2", endPoint.x);
     line.setAttribute("y2", endPoint.y);
+    line.style.pointerEvents = "stroke";
+
+
+    // If this edge is currently selected, add a class for visual feedback.
+    if (
+      this.editor.selectedEdge &&
+      this.editor.selectedEdge.from === this.from &&
+      this.editor.selectedEdge.to === this.to
+    ) {
+      line.classList.add("selected"); // Make sure to define this class in your CSS.
+    }
+
+    // Attach a click event listener to select this edge.
+    line.addEventListener("mousedown", (evt) => {
+      evt.stopPropagation(); // Prevent container clicks from clearing the selection.
+      this.editor.selectedEdge = this.editor.selectedEdge === null ? this : null;
+      this.editor.selectedNode = null; // Clear node selection, if any.
+      this.editor.render();
+    });
+
 
     return line;
   }
