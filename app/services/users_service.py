@@ -48,6 +48,12 @@ def add_story_to_user(user: User, story: Story):
     db.session.add(user_story)
     db.session.commit()
 
+
 def user_reads_story(user: User, story: Story) -> bool:
     """Indicates if the user is reading the story or not"""
     return UserStory.query.get((user.id, story.id)) is not None
+
+
+def get_user_story_info(user: User, story: Story) -> UserStory:
+    """Get the information about the user and story"""
+    return UserStory.query.get((user.id, story.id))

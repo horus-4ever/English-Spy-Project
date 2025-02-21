@@ -8,7 +8,7 @@ h1 {
 
 body {
     background-image: url("/static/pictures/joli_paysage.jpg") !important;
-    background-size:cover;
+    background-size: cover;
 }
 
 #characters {
@@ -25,7 +25,7 @@ body {
 .picture {
     height: max-content;
 
-    
+
 }
 
 #p2 {
@@ -33,14 +33,15 @@ body {
 }
 
 .bubble {
-    position:absolute;
-    bottom: 50px; /* distance from the bottom of the page */
+    position: absolute;
+    bottom: 50px;
+    /* distance from the bottom of the page */
     left: 50%;
     transform: translateX(-50%);
-    border-style:solid;
+    border-style: solid;
     border-color: black;
     background-color: white;
-    height: 20%; 
+    height: 20%;
     padding: 1% 3%;
     width: 80%;
 }
@@ -52,15 +53,16 @@ body {
 
 .text {
     font-size: 20px;
-    position:relative;
+    position: relative;
     margin: 10px 0;
     height: 12vh;
-    width:100%;
+    width: 100%;
 }
 
 .next {
     position: absolute;
-    bottom: 0; /* distance from the bottom of box */
+    bottom: 0;
+    /* distance from the bottom of box */
     left: 50%;
     transform: translateX(-50%);
     width: 100%;
@@ -68,45 +70,68 @@ body {
     border-radius: 0%;
 }
 
-.next:hover{
+.next:hover {
     background-color: green;
     left: 50%;
     transform: translateX(-50%);
 }
 
 .slidecontainer {
+    /* Use positioning that keeps it fixed at the right side */
     position: absolute;
-    margin-left: 90%;
-    width: 7%;
+    right: 10px;
+    top: 20%;
+    transform: translateY(-50%);
+    width: 150px;
+    z-index: 1000;
 }
 
+/* Ensure the progress element itself is styled with rounded corners */
 .slider {
-  -webkit: none;
-  width: 100%;
-  height: 0px;
-  background: #d3d3d3;
-  outline: none;
-  opacity: 0.7;
-  -webkit-transition: .2s;
-  transition: opacity .2s;
+    width: 100%;
+    height: 25px;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+/* WebKit browsers: style the unfilled portion */
+.slider::-webkit-progress-bar {
+    background-color: #d3d3d3;
+    border-radius: 10px;
+}
+
+/* WebKit browsers: style the filled portion */
+.slider::-webkit-progress-value {
+    background-color: #04AA6D;
+    border-radius: 10px;
+    box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.2);
+    transition: width 0.3s ease;
+}
+
+/* Firefox: style the filled portion */
+.slider::-moz-progress-bar {
+    background-color: #04AA6D;
+    border-radius: 10px;
+    box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.2);
+    transition: width 0.3s ease;
 }
 
 .slider:hover {
-  opacity: 1;
+    opacity: 1;
 }
 
 .slider::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  appearance: none;
-  width: 25px;
-  height: 25px;
-  background: #04AA6D;
-  cursor: pointer;
+    -webkit-appearance: none;
+    appearance: none;
+    width: 25px;
+    height: 25px;
+    background: #04AA6D;
+    cursor: pointer;
 }
 
 .slider::-moz-range-thumb {
-  width: 5px;
-  height: 25px;
-  background: #04AA6D;
-  cursor: pointer;
+    width: 5px;
+    height: 25px;
+    background: #04AA6D;
+    cursor: pointer;
 }

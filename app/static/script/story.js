@@ -4,10 +4,18 @@
  */
 let storyReader = null;
 
+/**
+ * Global StoryUser instance.
+ * @type {StoryUser|null}
+ */
+let user = null;
+
 document.addEventListener("DOMContentLoaded", async () => {
-    storyReader = new StoryReader();
     const storyID = Number.parseInt(document.querySelector("#storyID").textContent, 10);
+    storyReader = new StoryReader();
+    user = new StoryUser(storyID);
     await storyReader.loadStory(storyID);
+    await user.fetchUserData();
 });
 
 /**
@@ -15,6 +23,89 @@ document.addEventListener("DOMContentLoaded", async () => {
  * @returns {StoryReader|null}
  */
 const getReader = () => storyReader;
+
+/**
+ * Returns the current StoryUser instance.
+ * @returns {StoryUser|null}
+ */
+const getUser = () => user;
+
+
+/**
+ * Class representing a user within a story context.
+ *
+ * This class manages the user’s data such as health and progress,
+ * and updates a visual health bar element on the page. It fetches user
+ * data from an API endpoint, adjusts the health on wrong answers, and renders
+ * the current state to the health bar.
+ */
+class StoryUser {
+    /**
+     * Creates an instance of StoryUser.
+     *
+     * @param {string|number} storyID - The unique identifier for the story/user.
+     */
+    constructor(storyID) {
+        this.storyID = storyID;
+        this.healthBar = document.getElementById("myRange");
+        this.health = 0;
+        this.progress = null;
+    }
+
+    /**
+     * Fetches user data from the API and updates the health and progress properties.
+     *
+     * The method constructs the API URL using the storyID, makes an asynchronous
+     * request, parses the JSON response, and sets the corresponding properties.
+     * If an error occurs during the fetch, it logs the error to the console.
+     *
+     * After updating the data, the render method is called to update the UI.
+     *
+     * @async
+     * @returns {Promise<void>} A promise that resolves when the data has been fetched and rendered.
+     */
+    async fetchUserData() {
+        const url = `/api/userinfo/${this.storyID}`;
+        try {
+            const response = await fetch(url);
+            const data = await response.json();
+            this.health = data["health"];
+            this.progress = data["progress"];
+        } catch (error) {
+            console.error("Error fetching data:", error);
+        }
+        this.render();
+    }
+
+    /**
+     * Updates the user's progress.
+     *
+     * @param {*} nodeID - An identifier for the current progress node.
+     */
+    setProgress(nodeID) {
+        this.progress = nodeID;
+    }
+
+    /**
+     * Processes a wrong answer by decrementing the user's health.
+     *
+     * Decreases the health property by 10 points and then updates the UI by calling render.
+     */
+    wrongAnswer() {
+        this.health -= 10;
+        this.render();
+    }
+
+    /**
+     * Renders the current user state to the UI.
+     *
+     * Updates the health bar's value to reflect the current health of the user.
+     * It assumes that the health bar element supports a "value" property (e.g., an <input> of type range).
+     */
+    render() {
+        this.healthBar.value = this.health;
+    }
+}
 
 
 /**
@@ -30,7 +121,6 @@ class StoryReader {
         this.currentNodeID = null;
         this.currentNode = null;
         this.nextNodesID = [];
-        this.quizQuestions = [];
     }
 
     /**
@@ -51,7 +141,7 @@ class StoryReader {
     async fetchStartNode() {
         const url = `/api/stories/${this.storyID}/nodes`;
         const response = await fetch(url);
-        if(!response.ok) {
+        if (!response.ok) {
             throw new Error("HTTP error " + response.status);
         }
         const { nodes } = await response.json();
@@ -68,7 +158,7 @@ class StoryReader {
     async fetchData() {
         const url = `/api/stories/nodes/${this.currentNodeID}`;
         const response = await fetch(url);
-        if(!response.ok) {
+        if (!response.ok) {
             throw new Error("HTTP error " + response.status);
         }
         const json = await response.json();
@@ -82,7 +172,7 @@ class StoryReader {
      * Updates the UI elements with the current node's content.
      */
     display() {
-        if (this.currentNode["type"] == "QUIZ"){
+        if (this.currentNode["type"] == "QUIZ") {
             this.contentSection.innerHTML = "";
             const quizParser = new QuizParser(this.currentNode["content"]);
             quizParser.implementQuizContent(this.contentSection);
@@ -99,27 +189,36 @@ class StoryReader {
      * Moves to the next node and updates the UI.
      */
     async next() {
-        if (this.currentNode["type"] == "QUIZ"){
-            if (this.correctAnswer() && this.nextNodesID.length > 0){
+        let needFetch = true;
+        if (this.currentNode["type"] == "QUIZ") {
+            if (this.correctAnswer() && this.nextNodesID.length > 0) {
                 this.currentNodeID = this.nextNodesID[0];
+            } else {
+                needFetch = false;
             }
-        } else if(this.currentNode["type"] != "END" && this.nextNodesID.length > 0) {
+        } else if (this.currentNode["type"] != "END" && this.nextNodesID.length > 0) {
             this.currentNodeID = this.nextNodesID[0]; // take the first one, for the moment
         }
-        await this.fetchData();
+        if(needFetch) { // fetch the data only if we changed
+            await this.fetchData();
+        }
+        
     }
 
     correctAnswer() {
         const allQuiz = this.contentSection.querySelectorAll(".quiz-question");
-        for(let quiz of allQuiz) {
+        for (let quiz of allQuiz) {
             const answer = quiz.getAttribute("solution");
             const userAnswer = quiz.value;
-            if(answer !== userAnswer) {
+            if (answer !== userAnswer) {
+                getUser().wrongAnswer();
                 return false;
             }
         };
         return true;
     }
+
+
 }
 
 

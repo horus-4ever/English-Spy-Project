@@ -11,6 +11,7 @@ class UserStory(db.Model):
     
     # Store progress (this could be an integer, a percentage, or even a pointer to a StoryNode id)
     progress: Mapped[int] = mapped_column(db.Integer, default=0)
+    health: Mapped[int] = mapped_column(db.Integer, default=100)
     
     # Relationships back to User and Story
     user = relationship("User", back_populates="user_stories")
@@ -18,3 +19,10 @@ class UserStory(db.Model):
     
     def __repr__(self):
         return f"<UserStory user_id={self.user_id}, story_id={self.story_id}, progress={self.progress}>"
+
+    def serialize(self):
+        return {
+            "story_id": self.story_id,
+            "progress": self.progress,
+            "health": self.health
+        }

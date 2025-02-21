@@ -14,3 +14,4 @@ api_bp.add_url_rule("/stories/<int:story_id>/edges", view_func=StoryEdgesRessour
 
 api_bp.add_url_rule("/users/new", view_func=UserRessource.as_view("new_user"))
 api_bp.add_url_rule("/users/<int:user_id>", view_func=UserDetailRessource.as_view("user"))
+api_bp.add_url_rule("/userinfo/<int:story_id>", view_func=UserStoryRessource.as_view("user_story"))

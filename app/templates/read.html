@@ -33,9 +33,10 @@
 
     <main>
         <div class="slidecontainer">
-            <input type="range" min="0" max="100" value="0" class="slider" id="myRange" disabled>
+            <progress value="0" max="100" class="slider" id="myRange"></progress>
         </div>
-        <p id="storyID" style="display: hidden">{{ story_id }}</p>
+        <p id="storyID" style="display: none">{{ story_id }}</p>
+        <p id="userID" style="display: none">{{ user_id }}</p>
         <div id="characters">
             <img id="p1" class="picture" src="../static/pictures/p1.png" alt="Picture of the first character">
             <img id="p2" class="picture" src="../static/pictures/p2.png" alt="Picture of the second character">

@@ -18,4 +18,4 @@ def read(story_id: int):
     story: Story = get_story_by_id(story_id)
     if not user_reads_story(user, story):
         add_story_to_user(user, story)
-    return render_template("read.html", story_id=story_id)
+    return render_template("read.html", story_id=story_id, user_id=user_id)
