@@ -30,6 +30,7 @@ class StoryReader {
         this.currentNodeID = null;
         this.currentNode = null;
         this.nextNodesID = [];
+        this.quizQuestions = [];
     }
 
     /**
@@ -83,7 +84,8 @@ class StoryReader {
     display() {
         if (this.currentNode["type"] == "QUIZ"){
             this.contentSection.innerHTML = "";
-            implementQuizContent(this.currentNode["content"]);
+            const quizParser = new QuizParser(this.currentNode["content"]);
+            quizParser.implementQuizContent(this.contentSection);
         } else {
             this.contentSection.innerHTML = this.currentNode["content"];
         }
@@ -98,7 +100,7 @@ class StoryReader {
      */
     async next() {
         if (this.currentNode["type"] == "QUIZ"){
-            if (correctAnswer(this.currentNode["content"]) && this.nextNodesID.length > 0){
+            if (this.correctAnswer() && this.nextNodesID.length > 0){
                 this.currentNodeID = this.nextNodesID[0];
             }
         } else if(this.currentNode["type"] != "END" && this.nextNodesID.length > 0) {
@@ -106,54 +108,125 @@ class StoryReader {
         }
         await this.fetchData();
     }
+
+    correctAnswer() {
+        const allQuiz = this.contentSection.querySelectorAll(".quiz-question");
+        for(let quiz of allQuiz) {
+            const answer = quiz.getAttribute("solution");
+            const userAnswer = quiz.value;
+            if(answer !== userAnswer) {
+                return false;
+            }
+        };
+        return true;
+    }
 }
 
-function implementQuizContent(content){
-    const parser = new DOMParser();
-    const htmlDoc = parser.parseFromString(content, 'text/html');
-    let nodes = htmlDoc.getElementsByTagName('div')[0].childNodes;
-    let nb_q=0;
-    for (let node of nodes){
-        if (node.tagName == "QUIZ"){
-            nb_q++;
-            if (node.childNodes.length == 0){
-                var newQuiz = document.createElement("input");
-                newQuiz.id = "Q"+nb_q;
-                document.getElementById("text").appendChild(newQuiz);
+
+/**
+ * Class representing a quiz parser.
+ *
+ * This class is responsible for converting a custom HTML string that contains quiz-specific tags
+ * (such as <QUIZ> elements and nested <quizchoice> elements) into standard HTML elements.
+ * It parses the content, processes quiz-specific nodes based on their attributes, and appends
+ * the resulting HTML nodes to a given container (content zone).
+ */
+class QuizParser {
+    /**
+     * Creates an instance of QuizParser.
+     *
+     * @param {string} content - The HTML string content containing quiz elements.
+     */
+    constructor(content) {
+        this.content = content;
+    }
+
+    /**
+     * Parses the provided HTML content and appends the transformed nodes to the specified content zone.
+     *
+     * The method:
+     * - Creates a new DOMParser instance and converts the HTML string into a document.
+     * - Selects the child nodes of the first <div> element in the parsed document.
+     * - Iterates over each node:
+     *   - If the node is a custom <QUIZ> element, it extracts the "solution" attribute,
+     *     calls the appropriate parsing method based on its type, sets the "solution" attribute,
+     *     and adds a CSS class "quiz-question" for styling purposes.
+     *   - Otherwise, it simply imports the node into the current document.
+     * - Finally, each new node is appended to the provided contentZone element.
+     *
+     * @param {HTMLElement} contentZone - The container element to which the parsed quiz content will be appended.
+     */
+    implementQuizContent(contentZone) {
+        const parser = new DOMParser();
+        const htmlDoc = parser.parseFromString(this.content, 'text/html');
+        const nodes = htmlDoc.getElementsByTagName('div')[0].childNodes;
+        nodes.forEach((node, index) => {
+            let newHtmlNode = null;
+            if (node.tagName === "QUIZ") {
+                const answer = node.getAttribute("solution");
+                newHtmlNode = this.parseQuizContent(node);
+                newHtmlNode.setAttribute("solution", answer);
+                newHtmlNode.classList.add("quiz-question");
             } else {
-                var newQuiz = document.createElement("select");
-                newQuiz.id = "Q"+nb_q;
-                document.getElementById("text").appendChild(newQuiz);
-                for (let quizchoice of node.childNodes){
-                    var newQuizPossibility = document.createElement("option");
-                    newQuizPossibility.textContent = quizchoice.textContent;
-                    document.getElementById("Q"+nb_q).appendChild(newQuizPossibility);
-                }
+                newHtmlNode = document.importNode(node, true);
             }
-        } else if (node.tagName == "P"){
-            var newElt = document.createElement("div");
-            newElt.textContent = node.textContent;
-            document.getElementById("text").appendChild(newElt);
-        }
+            contentZone.appendChild(newHtmlNode);
+        });
     }
-    
-}
 
-function correctAnswer(content){
-    const parser = new DOMParser();
-    const htmlDoc = parser.parseFromString(content, 'text/html');
-    let nodes = htmlDoc.getElementsByTagName('div')[0].childNodes;
-    let nb_q=0;
-    var stat = true;
-    for (let node of nodes){
-        if (node.tagName == "QUIZ"){
-            nb_q++;
-            if (node.attributes.solution.nodeValue != document.getElementById("Q"+nb_q).value){
-                console.log("Mauvaise réponse, réponse attendue = ",node.attributes.solution.nodeValue,'\n ce qui a été entré = ',document.getElementById("Q"+nb_q).value);
-                document.getElementById("myRange").value =  +document.getElementById("myRange").value + 10;
-                stat = false;
-            }
+    /**
+     * Parses a quiz node by determining its type and delegating to the appropriate parser.
+     *
+     * The method checks the "type" attribute of the provided quiz node:
+     * - If the type is "multichoice", it calls parseMultipleChoice.
+     * - Otherwise, it defaults to calling parseTextInput.
+     *
+     * @param {HTMLElement} node - The custom quiz node to parse.
+     * @returns {HTMLElement} - The resulting HTML element after parsing.
+     */
+    parseQuizContent(node) {
+        const quizKind = node.getAttribute("type");
+        switch (quizKind) {
+            case "multichoice":
+                return this.parseMultipleChoice(node);
+            default:
+                return this.parseTextInput(node);
         }
     }
-    return stat;
+
+    /**
+     * Parses a quiz node of type "multichoice" and converts it into a <select> element.
+     *
+     * The method:
+     * - Creates a new <select> element.
+     * - Queries all child elements with the tag name "quizchoice" from the quiz node.
+     * - Iterates over each <quizchoice> element, creates an <option> element, sets its text content,
+     *   and appends it to the <select> element.
+     *
+     * @param {HTMLElement} node - The custom quiz node of type "multichoice".
+     * @returns {HTMLElement} - The generated <select> element with corresponding <option> children.
+     */
+    parseMultipleChoice(node) {
+        const result = document.createElement("select");
+        const children = node.querySelectorAll("quizchoice");
+        children.forEach(child => {
+            const option = document.createElement("option");
+            option.textContent = child.textContent;
+            result.appendChild(option);
+        });
+        return result;
+    }
+
+    /**
+     * Parses a quiz node with unspecified or text input type and converts it into an <input> element.
+     *
+     * This is the default parser used when the quiz type is not "multichoice".
+     *
+     * @param {HTMLElement} node - The custom quiz node to parse.
+     * @returns {HTMLElement} - The generated <input> element.
+     */
+    parseTextInput(node) {
+        const result = document.createElement("input");
+        return result;
+    }
 }
