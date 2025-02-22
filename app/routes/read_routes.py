@@ -14,8 +14,6 @@ def read(story_id: int):
     This route will render the visual story.
     """
     user_id: int = session["user_id"]
-    user: User = get_user_by_id(user_id)
-    story: Story = get_story_by_id(story_id)
-    if not user_reads_story(user, story):
-        add_story_to_user(user, story)
+    if not user_reads_story(user_id, story_id):
+        add_story_to_user(user_id, story_id)
     return render_template("read.html", story_id=story_id, user_id=user_id)
