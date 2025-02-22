@@ -1,5 +1,6 @@
 /* static/story-card.css */
 .story-card {
+    width: 300px;
     background: #fff;
     border: 1px solid #e0e0e0;
     border-radius: 8px;
@@ -12,7 +13,6 @@
 }
 
 .story-card:hover {
-    transform: translateY(-5px);
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
 }
 

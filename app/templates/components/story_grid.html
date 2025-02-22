@@ -1,0 +1,9 @@
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/components/stories-grid.css') }}">
+{% endblock %}
+
+<div class="stories-container">
+    {% for story in stories %}
+        {% include "components/story_card.html" %}
+    {% endfor %}
+</div>

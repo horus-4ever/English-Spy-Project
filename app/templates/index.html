@@ -2,19 +2,11 @@
 
 {% block title %}Home{% endblock %}
 
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/pages/home.css') }}">
+{% endblock %}
+
 {% block content %}
-  <h1>Available Stories</h1>
-  <div class="stories-container">
-    {% for story in stories %}
-      <div class="story-card">
-        <div class="story-card-title">{{ story.title }}</div>
-        <div class="story-card-description">{{ story.description }}</div>
-        <div class="story-card-footer">
-          <a href="read/{{story.id}}">Read More</a>
-        </div>
-      </div>
-    {% else %}
-      <p>No stories available.</p>
-    {% endfor %}
-  </div>
+<h1>Available Stories</h1>
+{% include "components/story_grid.html" %}
 {% endblock %}

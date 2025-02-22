@@ -2,10 +2,14 @@
 
 {% block title %}Sign Up{% endblock %}
 
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/components/auth.css') }}">
+{% endblock %}
+
 {% block content %}
-<div class="form-container">
+<div class="auth-card">
     <h2>Sign Up</h2>
-    <form method="POST">
+    <form class="auth-form" method="POST">
         <label for="username">Username</label>
         <input type="text" id="username" name="username" required>
         

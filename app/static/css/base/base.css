@@ -1,0 +1,23 @@
+/* Global Base Styles */
+html {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  height: 100%;
+}
+
+body {
+  width: 100%;
+  height: 100%;
+  font-family: 'Roboto', sans-serif;
+  background: #f7f7f7;
+  background-size: cover;
+  margin: 0;
+  padding: 0;
+}
+
+/* Utility Container */
+.container {
+  width: 100%;
+  margin: 20px auto; /* Centers the container horizontally */
+}

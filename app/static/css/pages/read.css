@@ -1,9 +1,61 @@
-html {
-    height: 100%;
+/* Quiz Component Styles */
+.quiz-question {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-size: 16px;
+    padding: 8px 12px;
+    border: 2px solid #ccc;
+    border-radius: 4px;
+    background-color: #fff;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    outline: none;
 }
 
-h1 {
-    text-align: center;
+.quiz-question:focus {
+    border-color: #0056b3;
+    box-shadow: 0 0 5px rgba(4, 170, 109, 0.5);
+}
+
+/* Custom Select Arrow for Quiz Inputs */
+select.quiz-question {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='10'%20height='5'%3E%3Cpolygon%20points='0,0%2010,0%205,5'%20fill='%23666'/%3E%3C/svg%3E") no-repeat right 10px center;
+    background-color: #fff;
+    background-size: 10px 5px;
+}
+
+/* Error State for Quiz Inputs */
+.quiz-question.quiz-error {
+    border-color: #e74c3c;
+    box-shadow: 0 0 5px rgba(231, 76, 60, 0.5);
+    animation: shake 0.3s ease;
+}
+
+@keyframes shake {
+    0% {
+        transform: translateX(0);
+    }
+
+    20% {
+        transform: translateX(-5px);
+    }
+
+    40% {
+        transform: translateX(5px);
+    }
+
+    60% {
+        transform: translateX(-5px);
+    }
+
+    80% {
+        transform: translateX(5px);
+    }
+
+    100% {
+        transform: translateX(0);
+    }
 }
 
 body {
@@ -134,81 +186,4 @@ body {
     height: 25px;
     background: #04AA6D;
     cursor: pointer;
-}
-
-
-
-
-/* modal.css */
-
-/* The modal's overlay */
-.modal {
-    display: none;
-    /* Hidden by default */
-    position: fixed;
-    /* Stay in place */
-    z-index: 2000;
-    /* Sit on top of everything else */
-    left: 0;
-    top: 0;
-    width: 100%;
-    /* Full width */
-    height: 100%;
-    /* Full height */
-    overflow: auto;
-    /* Enable scrolling if needed */
-    background-color: rgba(0, 0, 0, 0.6);
-    /* Black with opacity */
-    transition: opacity 0.3s ease;
-}
-
-/* Modal content box */
-.modal-content {
-    background-color: #fefefe;
-    margin: 15% auto;
-    /* 15% from the top and centered */
-    padding: 20px;
-    border: none;
-    width: 80%;
-    max-width: 400px;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    animation: slide-down 0.4s ease-out;
-}
-
-/* Animation for modal appearance */
-@keyframes slide-down {
-    from {
-        opacity: 0;
-        transform: translateY(-20%);
-    }
-
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-/* The close button */
-.close {
-    color: #aaa;
-    float: right;
-    font-size: 28px;
-    font-weight: bold;
-    cursor: pointer;
-    transition: color 0.3s;
-}
-
-.close:hover,
-.close:focus {
-    color: #000;
-}
-
-/* Modal text styling */
-.modal-content p {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    font-size: 16px;
-    color: #333;
-    margin: 10px 0;
-    text-align: center;
 }

@@ -2,25 +2,27 @@
 
 {% block title %}My Account{% endblock %}
 
-{% block head_extra %}
-<link rel="stylesheet" href="{{ url_for('static', filename='styles/story-card.css') }}">
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/pages/account.css') }}">
 {% endblock %}
 
 {% block content %}
-<h1>Welcome, {{ user.username }}!</h1>
-<h2>Your Stories</h2>
+<main class="account-page">
+    <header class="account-header">
+        <h1>Welcome, {{ user.username }}!</h1>
+    </header>
 
-<div class="stories-container">
-    {% if user.user_stories %}
-        {% for user_story in user.user_stories %}
-            {% set story = user_story.story %}
-            {% include "story_card.html" %}
-        {% endfor %}
-    {% else %}
-    <p>You are not reading any stories yet.</p>
-    {% endif %}
-</div>
-<div class="create-story">
-    <a href="/editor/new"> Create a new story </a>
-</div>
+    <section class="stories-section">
+        <h2>Your Stories</h2>
+        {% if stories %}
+            {% include "components/story_grid.html" %}
+        {% else %}
+        <p>You are not reading any stories yet.</p>
+        {% endif %}
+    </section>
+
+    <section class="create-story-section">
+        <a class="btn create-story-btn" href="/editor/new">Create a New Story</a>
+    </section>
+</main>
 {% endblock %}

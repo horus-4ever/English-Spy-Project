@@ -5,37 +5,29 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Flask App{% endblock %}</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles/style.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles/navbar.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles/story-card.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles/story-editor.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles/modal-editor.css') }}">
-    <!-- Optional: Include a small JavaScript snippet to dismiss the error -->
-    <script>
-        function dismissError() {
-            document.getElementById('error-notification').style.display = 'none';
-        }
-    </script>
+    <!-- Global (base) styles -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/base/base.css') }}">
+
+    {% block extra_css %}
+    {# Page-specific styles can be inserted by each template extending this base #}
+    {% endblock %}
 </head>
 
 <body>
-    <!-- Error Notification Component for flashed messages -->
-    {% with messages = get_flashed_messages(category_filter=["error"]) %}
-    {% if messages %}
-    <div id="error-notification" class="error-notification">
-        {% for msg in messages %}
-        <span>{{ msg }}</span>
-        {% endfor %}
-        <button onclick="dismissError()">x</button>
-    </div>
-    {% endif %}
-    {% endwith %}
+    {% include "components/error_notification.html" %}
 
-    {% include "navbar.html" %}
+    {% include "components/navbar.html" %}
 
     <div class="container">
         {% block content %}{% endblock %}
     </div>
+
+    <!-- Global JavaScript -->
+    <script src="{{ url_for('static', filename='js/story.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/admin.js') }}"></script>
+    {% block extra_js %}
+    {# Page-specific JavaScript can be inserted by each template extending this base #}
+    {% endblock %}
 </body>
 
 </html>
