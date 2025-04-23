@@ -325,8 +325,8 @@
     moveDraggedNode(evt) {
       if (!this.dragNode || !this.dragCandidate) return;
       const containerRect = this.graphContainer.getBoundingClientRect();
-      const newX = evt.clientX - containerRect.left - this.dragCandidate.offsetX;
-      const newY = evt.clientY - containerRect.top - this.dragCandidate.offsetY;
+      const newX = evt.clientX - containerRect.left + this.graphContainer.scrollLeft - this.dragCandidate.offsetX;
+      const newY = evt.clientY - containerRect.top + this.graphContainer.scrollTop - this.dragCandidate.offsetY;
       this.dragNode.x = Math.max(newX, 0);
       this.dragNode.y = Math.max(newY, 0);
       this.render();
