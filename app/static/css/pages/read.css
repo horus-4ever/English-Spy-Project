@@ -1,21 +1,209 @@
-/* Quiz Component Styles */
+/* app/static/css/pages/read.css */
+
+/* --- General Page Setup --- */
+body {
+    /* Keep the background setting from the specific node, but ensure cover */
+    background-size: cover;
+    background-position: center center;
+    background-repeat: no-repeat;
+    /* Smooth background transition if images change */
+    transition: background-image 0.5s ease-in-out;
+    /* Ensure body takes full height if needed for positioning */
+    min-height: 100vh;
+    display: flex; /* Helps with centering/positioning if needed */
+    flex-direction: column;
+    position: relative; /* Context for absolute positioning */
+    overflow: hidden; /* Prevent scrollbars unless intended */
+}
+
+/* --- Character Display --- */
+#characters {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end; /* Align characters to the bottom */
+    position: absolute;
+    bottom: 0; /* Position relative to the bottom */
+    left: 0;
+    width: 100%;
+    height: 85%; /* Adjust height as needed, leave space for bubble */
+    padding: 0 5%; /* Side padding */
+    box-sizing: border-box;
+    z-index: 1; /* Behind the dialogue bubble */
+    pointer-events: none; /* Prevent characters from blocking clicks */
+}
+
+.picture {
+    max-height: 100%; /* Ensure characters scale within the container */
+    height: auto; /* Maintain aspect ratio */
+    width: auto; /* Maintain aspect ratio */
+    max-width: 40%; /* Limit width to prevent overlap on small screens */
+    object-fit: contain;
+    /* Add a subtle drop shadow for depth */
+    filter: drop-shadow(3px 3px 5px rgba(0, 0, 0, 0.3));
+}
+
+#p2 {
+    transform: scaleX(-1); /* Use scaleX for flipping instead of rotateY */
+}
+
+/* --- Dialogue Bubble --- */
+.bubble {
+    position: absolute;
+    bottom: 20px; /* Consistent distance from bottom */
+    left: 50%;
+    transform: translateX(-50%);
+    width: 85%; /* Slightly wider */
+    max-width: 900px; /* Max width for large screens */
+    min-height: 150px; /* Minimum height */
+    padding: 25px 35px; /* More padding */
+    background-color: rgba(255, 255, 255, 0.9); /* Slightly transparent white */
+    border: 1px solid rgba(0, 0, 0, 0.1); /* Softer border */
+    border-radius: 15px; /* Rounded corners */
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2); /* Softer shadow */
+    z-index: 10; /* Above characters */
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    font-family: 'Nunito', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* Nicer font */
+}
+
+/* --- Speaker Name --- */
+.speaker {
+    font-size: 1.4em; /* Slightly larger */
+    font-weight: 700; /* Bolder */
+    color: #333;
+    margin-bottom: 10px; /* Space below speaker name */
+    border-bottom: 1px solid #eee; /* Subtle separator */
+    padding-bottom: 5px;
+}
+
+/* --- Dialogue Text --- */
+.text {
+    font-size: 1.1em; /* Comfortable reading size */
+    color: #444;
+    line-height: 1.6; /* Improved readability */
+    flex-grow: 1; /* Allow text area to expand */
+    min-height: 60px; /* Ensure space for at least a few lines */
+    margin-bottom: 20px; /* Space before the next button */
+    /* Allow scrolling if text overflows */
+    max-height: 20vh; /* Limit max height */
+    overflow-y: auto;
+}
+
+/* --- Next Button --- */
+.next {
+    /* Remove absolute positioning relative to bubble, use flex alignment */
+    align-self: flex-end; /* Position to the right */
+    padding: 10px 25px;
+    font-size: 1em;
+    font-weight: 600;
+    color: #fff;
+    background-color: #007bff; /* Bootstrap primary blue */
+    border: none;
+    border-radius: 25px; /* Pill shape */
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+}
+
+.next:hover {
+    background-color: #0056b3; /* Darker blue on hover */
+    transform: translateY(-2px); /* Slight lift */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.next:active {
+    background-color: #004085;
+    transform: translateY(0); /* Back to normal on click */
+}
+
+
+/* --- Health/Progress Bar --- */
+.slidecontainer {
+    position: absolute;
+    top: 20px; /* Distance from top */
+    right: 20px; /* Distance from right */
+    width: 200px; /* Adjust width */
+    z-index: 1000; /* Above everything */
+    background-color: rgba(0, 0, 0, 0.3); /* Semi-transparent background */
+    padding: 5px;
+    border-radius: 15px;
+}
+
+.slider {
+    appearance: none; /* Override default look */
+    width: 100%;
+    height: 15px; /* Bar height */
+    border-radius: 10px;
+    overflow: hidden; /* Clip progress value */
+    background-color: #e9ecef; /* Light grey background track */
+    outline: none;
+    border: 1px solid rgba(255, 255, 255, 0.5); /* Subtle border */
+}
+
+/* WebKit (Chrome, Safari) */
+.slider::-webkit-progress-bar {
+    background-color: #e9ecef;
+    border-radius: 10px;
+}
+
+.slider::-webkit-progress-value {
+    background-color: #28a745; /* Green for health */
+    border-radius: 10px 0 0 10px; /* Round only left side if needed */
+    transition: width 0.3s ease;
+     /* Add a subtle gradient */
+    background-image: linear-gradient(
+        to bottom,
+        rgba(255, 255, 255, 0.2),
+        rgba(0, 0, 0, 0.1)
+    );
+}
+
+/* Firefox */
+.slider::-moz-progress-bar {
+    background-color: #28a745; /* Green for health */
+    border-radius: 10px;
+    transition: width 0.3s ease;
+     /* Add a subtle gradient */
+    background-image: linear-gradient(
+        to bottom,
+        rgba(255, 255, 255, 0.2),
+        rgba(0, 0, 0, 0.1)
+    );
+}
+
+/* Optional: Add a label or icon (could be done in HTML) */
+.slidecontainer::before {
+    content: '❤️'; /* Example: Heart icon for health */
+    position: absolute;
+    left: -25px; /* Position relative to the container */
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 1.2em;
+}
+
+
+/* --- Quiz Component Styles (Keep existing, maybe minor tweaks) --- */
 .quiz-question {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    font-size: 16px;
+    display: inline-block; /* Allow text flow around inputs */
+    font-family: 'Nunito', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-size: 1em; /* Match surrounding text */
     padding: 8px 12px;
-    border: 2px solid #ccc;
-    border-radius: 4px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
     background-color: #fff;
     transition: border-color 0.3s ease, box-shadow 0.3s ease;
     outline: none;
+    margin: 0 5px; /* Add some spacing */
+    vertical-align: baseline; /* Align with text */
 }
 
 .quiz-question:focus {
-    border-color: #0056b3;
-    box-shadow: 0 0 5px rgba(4, 170, 109, 0.5);
+    border-color: #007bff;
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
 }
 
-/* Custom Select Arrow for Quiz Inputs */
+/* Custom Select Arrow */
 select.quiz-question {
     appearance: none;
     -webkit-appearance: none;
@@ -23,167 +211,88 @@ select.quiz-question {
     background: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='10'%20height='5'%3E%3Cpolygon%20points='0,0%2010,0%205,5'%20fill='%23666'/%3E%3C/svg%3E") no-repeat right 10px center;
     background-color: #fff;
     background-size: 10px 5px;
+    padding-right: 30px; /* Make space for arrow */
 }
 
-/* Error State for Quiz Inputs */
+/* Error State */
 .quiz-question.quiz-error {
-    border-color: #e74c3c;
-    box-shadow: 0 0 5px rgba(231, 76, 60, 0.5);
-    animation: shake 0.3s ease;
+    border-color: #dc3545; /* Bootstrap danger red */
+    box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.25);
+    animation: shake 0.4s ease-in-out;
 }
 
 @keyframes shake {
-    0% {
-        transform: translateX(0);
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-4px); }
+  40%, 80% { transform: translateX(4px); }
+}
+
+/* --- Responsive Adjustments --- */
+@media (max-width: 768px) {
+    .bubble {
+        width: 95%;
+        padding: 20px;
+        min-height: 120px;
+        bottom: 10px;
     }
 
-    20% {
-        transform: translateX(-5px);
+    .speaker {
+        font-size: 1.2em;
     }
 
-    40% {
-        transform: translateX(5px);
+    .text {
+        font-size: 1em;
+        line-height: 1.5;
+        max-height: 25vh; /* Allow more height on smaller screens */
     }
 
-    60% {
-        transform: translateX(-5px);
+    .next {
+        padding: 8px 20px;
+        font-size: 0.9em;
     }
 
-    80% {
-        transform: translateX(5px);
+    #characters {
+        height: 80%; /* Adjust character area */
     }
 
-    100% {
-        transform: translateX(0);
+    .picture {
+        max-width: 45%; /* Allow slightly larger characters */
+    }
+
+    .slidecontainer {
+        width: 150px;
+        top: 10px;
+        right: 10px;
+    }
+
+     .slidecontainer::before {
+        left: -20px;
+        font-size: 1em;
     }
 }
 
-body {
-    background-image: url("/static/pictures/joli_paysage.jpg") !important;
-    background-size: cover;
-}
+@media (max-width: 480px) {
+    .bubble {
+         padding: 15px;
+    }
+     .speaker {
+        font-size: 1.1em;
+    }
 
-#characters {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    /*height: max-content;*/
-    margin: 0 5%;
-    position: absolute;
-    bottom: 30%;
-    width: 90%;
-}
+    .text {
+        font-size: 0.95em;
+    }
 
-.picture {
-    height: max-content;
+    .next {
+        align-self: center; /* Center button on very small screens */
+        margin-top: 10px;
+    }
 
-
-}
-
-#p2 {
-    transform: rotateY(180deg);
-}
-
-.bubble {
-    position: absolute;
-    bottom: 50px;
-    /* distance from the bottom of the page */
-    left: 50%;
-    transform: translateX(-50%);
-    border-style: solid;
-    border-color: black;
-    background-color: white;
-    height: 20%;
-    padding: 1% 3%;
-    width: 80%;
-}
-
-.speaker {
-    font-size: 20px;
-    font-weight: bold;
-}
-
-.text {
-    font-size: 20px;
-    position: relative;
-    margin: 10px 0;
-    height: 12vh;
-    width: 100%;
-}
-
-.next {
-    position: absolute;
-    bottom: 0;
-    /* distance from the bottom of box */
-    left: 50%;
-    transform: translateX(-50%);
-    width: 100%;
-    height: 20%;
-    border-radius: 0%;
-}
-
-.next:hover {
-    background-color: green;
-    left: 50%;
-    transform: translateX(-50%);
-}
-
-.slidecontainer {
-    /* Use positioning that keeps it fixed at the right side */
-    position: absolute;
-    right: 10px;
-    top: 20%;
-    transform: translateY(-50%);
-    width: 150px;
-    z-index: 1000;
-}
-
-/* Ensure the progress element itself is styled with rounded corners */
-.slider {
-    width: 100%;
-    height: 25px;
-    border-radius: 10px;
-    overflow: hidden;
-}
-
-/* WebKit browsers: style the unfilled portion */
-.slider::-webkit-progress-bar {
-    background-color: #d3d3d3;
-    border-radius: 10px;
-}
-
-/* WebKit browsers: style the filled portion */
-.slider::-webkit-progress-value {
-    background-color: #04AA6D;
-    border-radius: 10px;
-    box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.2);
-    transition: width 0.3s ease;
-}
-
-/* Firefox: style the filled portion */
-.slider::-moz-progress-bar {
-    background-color: #04AA6D;
-    border-radius: 10px;
-    box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.2);
-    transition: width 0.3s ease;
-}
-
-.slider:hover {
-    opacity: 1;
-}
-
-.slider::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    appearance: none;
-    width: 25px;
-    height: 25px;
-    background: #04AA6D;
-    cursor: pointer;
-}
-
-.slider::-moz-range-thumb {
-    width: 5px;
-    height: 25px;
-    background: #04AA6D;
-    cursor: pointer;
+    #characters {
+        /* Maybe hide one character or make them smaller */
+         justify-content: center; /* Center if only one character shown */
+    }
+     .picture {
+        max-width: 50%;
+    }
 }
