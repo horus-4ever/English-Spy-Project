@@ -181,6 +181,14 @@ class StoryReader {
         }
         this.leftImgSection.src = "../static/pictures/" + this.currentNode["left_img"];
         this.rightImgSection.src = "../static/pictures/" + this.currentNode["right_img"];
+        if (this.currentNode["background_img"]) {
+            // Construct the URL using a root-relative path
+            const bgImageUrl = `/static/pictures/${this.currentNode["background_img"]}`;
+            document.body.style.backgroundImage = `url('${bgImageUrl}')`;
+        } else {
+            // Optional: Set a default background or clear it if no image is specified
+            document.body.style.backgroundImage = 'none'; // Or set to a default CSS color/gradient
+        }
         this.speakerSection.innerHTML = this.currentNode["speaker"];
         document.body.style.backgroundImage = `url(${"../static/pictures/" + this.currentNode["background_img"]})`;
     }

@@ -156,6 +156,7 @@ class StoryNodesResource(MethodView):
             "speaker": n.speaker,
             "left_img": n.left_img,
             "right_img": n.right_img,
+            "background_img": n.background_img,
             "next": get_next_nodes_id(n.id)
         } for n in nodes]
         return jsonify({"nodes": result}), 200

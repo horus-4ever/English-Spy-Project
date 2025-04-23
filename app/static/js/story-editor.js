@@ -485,6 +485,7 @@
       document.getElementById("node-content").value = node.content;
       document.getElementById("node-left-img").value = node.left_img;
       document.getElementById("node-right-img").value = node.right_img;
+      document.getElementById("node-background-img").value = node.background_img;
     }
 
     clearNodeForm() {
@@ -504,6 +505,7 @@
         content: document.getElementById("node-content").value,
         left_img: document.getElementById("node-left-img").value,
         right_img: document.getElementById("node-right-img").value,
+        background_img: document.getElementById("node-background-img").value,
       };
       try {
         if (!nodeId) {

@@ -47,13 +47,16 @@ body {
 }
 
 /* --- Dialogue Bubble --- */
+/* --- Dialogue Bubble --- */
 .bubble {
     position: absolute;
     bottom: 20px; /* Consistent distance from bottom */
     left: 50%;
     transform: translateX(-50%);
-    width: 85%; /* Slightly wider */
-    max-width: 900px; /* Max width for large screens */
+    /* --- Increased width --- */
+    width: 90%; /* Changed from 85% */
+    max-width: 1100px; /* Optional: Increase max-width slightly for larger screens */
+    /* --- End of Increased width --- */
     min-height: 150px; /* Minimum height */
     padding: 25px 35px; /* More padding */
     background-color: rgba(255, 255, 255, 0.9); /* Slightly transparent white */
