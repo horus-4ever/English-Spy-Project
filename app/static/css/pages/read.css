@@ -35,7 +35,7 @@ body {
 .picture {
     max-height: 100%; /* Ensure characters scale within the container */
     height: auto; /* Maintain aspect ratio */
-    width: auto; /* Maintain aspect ratio */
+    width: 300px; /* Maintain aspect ratio */
     max-width: 40%; /* Limit width to prevent overlap on small screens */
     object-fit: contain;
     /* Add a subtle drop shadow for depth */
