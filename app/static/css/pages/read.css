@@ -33,7 +33,7 @@ body {
 }
 
 .picture {
-    max-height: 100%; /* Ensure characters scale within the container */
+    max-height: 280px; /* Ensure characters scale within the container */
     height: auto; /* Maintain aspect ratio */
     width: 300px; /* Maintain aspect ratio */
     max-width: 40%; /* Limit width to prevent overlap on small screens */
